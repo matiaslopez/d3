@@ -32,20 +32,25 @@ var attractForce = d3.forceManyBody().strength(200).distanceMax(800)
 var repelForce = d3.forceManyBody().strength(-100).distanceMax(60)
                    .distanceMin(10);
 
+// var simulation = d3.forceSimulation()
+//     // .force("link", d3.forceLink().id(function(d) { return d.id; }))
+//     .force("link", d3.forceLink().id(function(d) { return d.id; }).distance(function (d) {return distanceVal(d.value);})
+//         // .strength(function (d) {return 1/(1+d.value);})
+//         )
+//     .force("charge", d3.forceManyBody()
+//       // .strength(function(d) { return 200; })
+//       // .distanceMin(function(d) { return 200; })
+//       // .distanceMax(function(d) { return 1500; })
+//       )
+//     .force("center", d3.forceCenter(width / 2, height / 2));
+//       // .alphaDecay(0.03)
+//       // .force("attractForce",attractForce)
+//       // .force("repelForce",repelForce);
+
 var simulation = d3.forceSimulation()
-    // .force("link", d3.forceLink().id(function(d) { return d.id; }))
-    .force("link", d3.forceLink().id(function(d) { return d.id; }).distance(function (d) {return distanceVal(d.value);})
-        // .strength(function (d) {return 1/(1+d.value);})
-        )
-    .force("charge", d3.forceManyBody()
-      // .strength(function(d) { return 200; })
-      // .distanceMin(function(d) { return 200; })
-      // .distanceMax(function(d) { return 1500; })
-      )
+    .force("link", d3.forceLink().id(function(d) { return d.id; }).distance(function (d) {return distanceVal(d.value);}))
+    .force("charge", d3.forceManyBody().strength(-400))
     .force("center", d3.forceCenter(width / 2, height / 2));
-      // .alphaDecay(0.03)
-      // .force("attractForce",attractForce)
-      // .force("repelForce",repelForce);
 
 d3.json("data.json", function(error, graph) {
   if (error) throw error;
