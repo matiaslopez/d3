@@ -83,19 +83,6 @@ d3.json("data.json", function(error, graph) {
 
   node_group.style("opacity", function (d) { return 0.25+d.percent*3/4; }); // set the stroke opacity
 
-  // console.log(node_group)
-  // var node = svg.append("g")
-  //     .attr("class", "nodes")
-  //   .selectAll("circle")
-  //   .data(graph.nodes)
-  //   .enter().append("circle")
-  //     .attr("r", 30)
-  //     .attr("fill", function(d) { return d.house_col; })
-  //     .call(d3.drag()
-  //         .on("start", dragstarted)
-  //         .on("drag", dragged)
-  //         .on("end", dragended));
-
   node_group.append("title")
       .html(function(d) { return "Cantidad: " + d.size + "<br>Acción:<br>" + d.tooltip; });
 
