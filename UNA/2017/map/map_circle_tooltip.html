@@ -57,6 +57,14 @@ select {
   stroke-opacity: 0.1;
 }
 
+.legend {
+  position: absolute;
+  font-size: 26px;
+  font-weight: bold;
+  text-anchor: start;
+  color: white;
+}
+
     </style>
   </head>
   <body>
@@ -88,6 +96,14 @@ var map = new google.maps.Map(d3.select("#map").node(), {
       map.setMapTypeId('neutral-blue');
     });
 
+
+var toggleColor = (function(d){
+    return function(d){
+        d3.select("#" + d).style("color",
+          d3.select("#" + d).style("color") =="rgb(255, 255, 255)" ? "grey" : "white");
+    }
+})();
+
 // Load the hgdp data. When the data comes back, create an overlay.
 d3.json("circle_maps.json", function(data_json) {
   var overlay = new google.maps.OverlayView();
@@ -114,11 +130,70 @@ d3.json("circle_maps.json", function(data_json) {
     	.attr("class", "tooltip")
     	.style("opacity", 0);
 
+      var houseActive = false;
+      d3.select("body")
+        .append("div").append("text")
+        .style("left", "20px").style("top", "20px")
+        .attr("class", "legend")
+        .attr("id", "house-text")
+        .on("click", function(d){
+          // Determine if current line is visible
+          var active   = houseActive ? false : true,
+            newOpacity = active ? 0 : 1;
+          // Hide or show the elements
+          d3.selectAll(".house").transition()
+          .style("opacity", newOpacity);
+          // Update whether or not the elements are active
+          houseActive= active;
+          console.log("House to " + newOpacity);
+          toggleColor("house-text");
+        })
+        .text(" House ");
+
+      var temperamentActive = false;
+      d3.select("body")
+        .append("div").append("text")
+        .style("left", "20px").style("top", "60px")
+        .attr("class", "legend")
+        .attr("id", "temperament-text")
+        .on("click", function(){
+          // Determine if current line is visible
+          var active   = temperamentActive ? false : true,
+            newOpacity = active ? 0 : 1;
+          // Hide or show the elements
+          d3.selectAll(".temperament").transition()
+          .style("opacity", newOpacity);
+          // Update whether or not the elements are active
+          temperamentActive= active;
+          console.log("Temperament to " + newOpacity);
+          toggleColor("temperament-text");
+        })
+        .text(" Temperament ");
+
+      var cognitionActive = false;
+      d3.select("body")
+        .append("text")
+        .style("left", "20px").style("top", "100px")
+        .attr("class", "legend")
+        .attr("id", "cognition-text")
+        .on("click", function(){
+          // Determine if current line is visible
+          var active   = cognitionActive ? false : true,
+            newOpacity = active ? 0 : 1;
+          // Hide or show the elements
+          d3.selectAll(".cognition").transition()
+          .style("opacity", newOpacity);
+          // Update whether or not the elements are active
+          cognitionActive= active;
+          console.log("Cognition to " + newOpacity);
+          toggleColor("cognition-text");
+        })
+        .text(" Cognition ");
+
     // Draw each marker as a separate SVG element.
     overlay.draw = function() {
       var projection = this.getProjection(),
         padding = 20;
-
 
       var marker = layer.selectAll("svg")
         .data(d3.entries(data))
@@ -132,14 +207,16 @@ d3.json("circle_maps.json", function(data_json) {
         .attr("r", 15)
         .attr("cx", padding)
         .attr("cy", padding)
+        .attr("class", "house")
         .attr("fill",(d) => d.value.color_hou)
         .on("mouseover", showTooltip )
-     	  .on("mouseout", hideTooltip);
+        .on("mouseout", hideTooltip);
 
       marker.append("svg:circle")
         .attr("r",10)
         .attr("cx", padding)
         .attr("cy", padding)
+        .attr("class", "temperament")
         .attr("fill",(d) => d.value.color_temp)
         .on("mouseover", showTooltip )
         .on("mouseout", hideTooltip);
@@ -147,9 +224,12 @@ d3.json("circle_maps.json", function(data_json) {
         .attr("r", 5)
         .attr("cx", padding)
         .attr("cy", padding)
+        .attr("class", "cognition")
         .attr("fill",(d) => d.value.color_cog)
         .on("mouseover", showTooltip )
         .on("mouseout", hideTooltip);
+
+
 
       function showTooltip(d) {
         tooltip.transition()
