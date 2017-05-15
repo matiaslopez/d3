@@ -16,12 +16,20 @@
   stroke-width: 1px;
 }
 
+.linkPopulation {
+  color: #888888;
+  stroke-width: 1px;
+  text-decoration: none;
+  font-weight: bold;
+  font-variant: small-caps;
+}
+
 </style>
 </head>
 <body>
 <p style="text-align:center;">
   <label for="step_val"
-         style="display: inline-block; width: 150px; text-align: center">
+         style="display: inline-block; width: 120px; text-align: center">
          N= 200 - Step = <span id="step_val-value">...</span>
   </label>
   <input type="range" min="0" max="50" step="1" id="step_val">
@@ -31,6 +39,8 @@
     <option value="optimistic">Optimistic</option>
     <option value="pessimistic">Pessimistic</option>
   </select>
+  Simulate over: <a href="./" class="linkPopulation">All</a> -
+  <a href="./?dataset=data-timeserie-simulation-only-cognitive.json" class="linkPopulation">Cognitive</a>
 </p>
 
 <script src="d3.v4.min.js"></script>
@@ -40,6 +50,27 @@
 <script>
 
 
+// Read a page's GET URL variables and return them as an associative array.
+function getUrlVars()
+{
+    var vars = [], hash;
+    var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+    for(var i = 0; i < hashes.length; i++)
+    {
+        hash = hashes[i].split('=');
+        vars.push(hash[0]);
+        vars[hash[0]] = hash[1];
+    }
+    return vars;
+}
+
+var a = getUrlVars()
+var dataset = "data-timeserie.json"
+if (a.dataset !== undefined){
+  dataset = a.dataset
+}
+
+// console.log(dataset);
 
 
 function opacity(v) {
@@ -67,7 +98,7 @@ var repelForce = d3.forceManyBody().strength(-100).distanceMax(60)
 
 function updateChart(current_algorithm) {
 
-  d3.json("data-timeserie.json", function(error, graph) {
+  d3.json(dataset, function(error, graph) {
     if (error) throw error;
 
     console.log("Current algorithm: " + current_algorithm)

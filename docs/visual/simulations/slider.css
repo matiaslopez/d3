@@ -1,13 +1,13 @@
 input[type=range] {
   -webkit-appearance: none;
-  width: 60%;
+  width: 50%;
   margin: 13.8px 0;
 }
 input[type=range]:focus {
   outline: none;
 }
 input[type=range]::-webkit-slider-runnable-track {
-  width: 60%;
+  width: 50%;
   height: 8.4px;
   cursor: pointer;
   box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
