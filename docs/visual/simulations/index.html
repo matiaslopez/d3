@@ -39,8 +39,8 @@
     <option value="optimistic">Optimistic</option>
     <option value="pessimistic">Pessimistic</option>
   </select>
-  Simulate over: <a href="./" class="linkPopulation">All</a> -
-  <a href="./?dataset=data-timeserie-simulation-only-cognitive.json" class="linkPopulation">Cognitive</a>
+  Simulate over: <a href="./" class="linkPopulation" id="link-all">All</a> -
+  <a href="./?dataset=data-timeserie-simulation-only-cognitive.json" class="linkPopulation" id="link-cognitive">Cognitive</a>
 </p>
 
 <script src="d3.v4.min.js"></script>
@@ -67,7 +67,10 @@ function getUrlVars()
 var a = getUrlVars()
 var dataset = "data-timeserie.json"
 if (a.dataset !== undefined){
+  d3.selectAll("#link-cognitive").style("color", "#6666EE");
   dataset = a.dataset
+} else {
+  d3.selectAll("#link-all").style("color", "#6666EE");
 }
 
 // console.log(dataset);
