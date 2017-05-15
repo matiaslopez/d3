@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html>
+  <title>House+Temperament+Cognition Sequence visualization</title>
+  <head>
+<!-- http://bl.ocks.org/jhmarcus/8185674 -->
+	<meta name="viewport" content="initial-scale=1.0, user-scalable=no"/>
+    <script type="text/javascript" src="https://maps.google.com/maps/api/js?key=AIzaSyC62R0j23s1c-JzP6Gd3Q7UC5mDykuG-gc"></script>
+    <script type="text/javascript" src="https://d3js.org/d3.v4.min.js"></script>
+    <link rel="stylesheet" href="slider.css" />
+
+    <style type="text/css">
+
+html, body, #map {
+  width: 1000px;
+  height: 750px;
+  margin: 300;
+  padding: 0;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #002732;
+}
+
+select {
+  position: absolute;
+  left:7px;
+  top:510px;
+}
+
+.hgdp, .hgdp svg {
+  position: absolute;
+}
+
+.tooltip {
+  position: absolute;
+  line-height: .7;
+  font-weight: bold;
+  /*padding: 8px;*/
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  font-weight: bold;
+  font: 11.5px sans-serif;
+  border-radius: 2px;
+  pointer-events: none;
+}
+
+.hgdp svg {
+  /*width: 60px;*/
+  /*height: 20px;*/
+  /*padding-right: 100px;*/
+  /*font: 7px sans-serif;*/
+}
+
+.hgdp circle {
+  stroke: black;
+  stroke-width: 1.5px;
+  stroke-opacity: 0.1;
+}
+
+.legend {
+  position: absolute;
+  font-size: 26px;
+  font-weight: bold;
+  text-anchor: start;
+  color: white;
+}
+
+    </style>
+  </head>
+  <body>
+  <div class="slider_selector">
+  <p style="text-align:center;">
+    <label for="step_val"
+           style="display: inline-block; width: 150px; text-align: center; color:white">
+           Cognition measure <span id="step_val-value">...</span>
+    </label>
+      <input class="slider_selector" type="range" min="0" max="2" step="1" id="step_val">
+      </p>
+    </div>
+    <div id="map"></div>
+    <script type="text/javascript">
+
+var map = new google.maps.Map(d3.select("#map").node(), {
+  // draggableCursor: 'crosshair',
+  center: new google.maps.LatLng(-34.6037, -58.4256),
+  zoom: 12,
+  disableDefaultUI: true,
+  backgroundColor: '#002732',
+  // mapTypeId: google.maps.MapTypeId.TERRAIN,
+  // backgroundColor: "white",
+  // mapMaker: 'True',
+  styles: [
+  {
+    featureType: "all",
+    elementType: "labels",
+    stylers: [{ visibility: "off" }]
+  }
+  ]
+});
+
+  fetch('map-styles.json')
+    .then((response) => response.json())
+    .then(function (styles) {
+      map.mapTypes.set('neutral-blue', new google.maps.StyledMapType(styles));
+      map.setMapTypeId('neutral-blue');
+    });
+
+
+var toggleColor = (function(d){
+    return function(d){
+        d3.select("#" + d).style("color",
+          d3.select("#" + d).style("color") =="rgb(255, 255, 255)" ? "grey" : "white");
+    }
+})();
+
+function reduce_black(color){
+  if (color == "black"){
+    return "rgba(0,0,0,0.3)";
+  }
+  return color;
+}
+
+// Load the hgdp data. When the data comes back, create an overlay.
+d3.json("circle_maps_extended.json", function(data_json) {
+  var overlay = new google.maps.OverlayView();
+
+  // Add the container when the overlay is added to the map.
+  overlay.onAdd = function() {
+    var layer = d3.select(this.getPanes().overlayMouseTarget).append("div")
+      .attr("class", "hgdp");
+
+    var data = []
+    for (var i = 0; i < data_json.children.length; i++) {
+          var c_val = data_json.children[i];
+          // console.log(c_val.id);
+          data.push({
+          id: c_val.id,
+          color_cog_0: reduce_black(c_val.dev_col_0),
+          color_cog_1: reduce_black(c_val.dev_col_1),
+          color_cog_2: reduce_black(c_val.dev_col_2),
+          color_temp: reduce_black(c_val.temp_col),
+          color_hou: reduce_black(c_val.house_col),
+          latLng: new google.maps.LatLng(c_val.lat, c_val.lon)
+          });
+        }
+	  var tooltip = d3.select("body")
+        .append("div")
+    	.attr("class", "tooltip")
+    	.style("opacity", 0);
+
+      var houseActive = false;
+      d3.select("body")
+        .append("div").append("text")
+        .style("left", "20px").style("top", "70px")
+        .attr("class", "legend")
+        .attr("id", "house-text")
+        .on("click", function(d){
+          // Determine if current line is visible
+          var active   = houseActive ? false : true,
+            newOpacity = active ? 0 : 1;
+          // Hide or show the elements
+          d3.selectAll(".house").transition()
+          .style("opacity", newOpacity);
+          // Update whether or not the elements are active
+          houseActive= active;
+          console.log("House to " + newOpacity);
+          toggleColor("house-text");
+        })
+        .text(" House ");
+
+      var temperamentActive = false;
+      d3.select("body")
+        .append("div").append("text")
+        .style("left", "20px").style("top", "100px")
+        .attr("class", "legend")
+        .attr("id", "temperament-text")
+        .on("click", function(){
+          // Determine if current line is visible
+          var active   = temperamentActive ? false : true,
+            newOpacity = active ? 0 : 1;
+          // Hide or show the elements
+          d3.selectAll(".temperament").transition()
+          .style("opacity", newOpacity);
+          // Update whether or not the elements are active
+          temperamentActive= active;
+          console.log("Temperament to " + newOpacity);
+          toggleColor("temperament-text");
+        })
+        .text(" Temperament ");
+
+      var cognitionActive = false;
+      d3.select("body")
+        .append("text")
+        .style("left", "20px").style("top", "130px")
+        .attr("class", "legend")
+        .attr("id", "cognition-text")
+        .on("click", function(){
+          // Determine if current line is visible
+          var active   = cognitionActive ? false : true,
+            newOpacity = active ? 0 : 1;
+          // Hide or show the elements
+          d3.selectAll(".cognition").transition()
+          .style("opacity", newOpacity);
+          // Update whether or not the elements are active
+          cognitionActive= active;
+          console.log("Cognition to " + newOpacity);
+          toggleColor("cognition-text");
+        })
+        .text(" Cognition ");
+
+    // Draw each marker as a separate SVG element.
+    overlay.draw = function() {
+      var projection = this.getProjection(),
+        padding = 20;
+
+      var marker = layer.selectAll("svg")
+        .data(d3.entries(data))
+        .each(transform) // update existing markers
+        .enter().append("svg:svg")
+          .each(transform)
+          .attr("class", "marker");
+
+      // Add a circle.
+      marker.append("svg:circle")
+        .attr("r", 15)
+        .attr("cx", padding)
+        .attr("cy", padding)
+        .attr("class", "house")
+        .attr("fill",(d) => d.value.color_hou)
+        .on("mouseover", showTooltip )
+        .on("mouseout", hideTooltip);
+
+      marker.append("svg:circle")
+        .attr("r",10)
+        .attr("cx", padding)
+        .attr("cy", padding)
+        .attr("class", "temperament")
+        .attr("fill",(d) => d.value.color_temp)
+        .on("mouseover", showTooltip )
+        .on("mouseout", hideTooltip);
+
+      marker.append("svg:circle")
+        .attr("r", 5)
+        .attr("cx", padding)
+        .attr("cy", padding)
+        .attr("class", "cognition step2")
+        .attr("fill",(d) => d.value.color_cog_2)
+        .on("mouseover", showTooltip )
+        .on("mouseout", hideTooltip);
+
+      marker.append("svg:circle")
+        .attr("r", 5)
+        .attr("cx", padding)
+        .attr("cy", padding)
+        .attr("class", "cognition step1")
+        .attr("fill",(d) => d.value.color_cog_1)
+        .on("mouseover", showTooltip )
+        .on("mouseout", hideTooltip);
+
+      marker.append("svg:circle")
+        .attr("r", 5)
+        .attr("cx", padding)
+        .attr("cy", padding)
+        .attr("class", "cognition step0")
+        .attr("fill",(d) => d.value.color_cog_0)
+        .on("mouseover", showTooltip )
+        .on("mouseout", hideTooltip);
+
+
+      // d3.select("#step_val-value").text(0)
+      // d3.select("#step_val").property("value", 0);
+      d3.select("#step_val").on("input", function() {
+        // console.log(this.value);
+        update_cog_circles(this.value)
+      });
+
+      function showTooltip(d) {
+        tooltip.transition()
+            .duration(200)
+            .style("opacity", .9);
+        tooltip.html('Child ID: '+d.value.id+'<br>')
+            .style("left", (d3.event.pageX + 5) + "px")
+            .style("top", (d3.event.pageY - 28) + "px");
+      }
+
+      function hideTooltip(){
+        tooltip.transition()
+          .duration(200)
+          .style("opacity", 0);
+      }
+
+      function transform(d) {
+        pos = d.value.latLng;
+        pos = projection.fromLatLngToDivPixel(pos);
+        return d3.select(this)
+          .style("left", (pos.x - padding) + "px")
+          .style("top", (pos.y - padding) + "px")
+      }
+    };
+
+    function update_cog_circles(id_visual){
+        d3.select("#step_val-value").text(id_visual);
+        // d3.selectAll(".cognition").transition()
+            // .style("opacity", 0);
+        var class_new = ".step" + id_visual.toString();
+        //d3.selectAll(".cognition:not(.step0)").transition()
+
+        d3.selectAll(".cognition:not(" + class_new +")").transition()
+            .style("opacity", 0);
+        d3.selectAll(class_new).transition()
+            .style("opacity", 1);
+    }
+
+    d3.select("#step_val").property("value", 0);
+    update_cog_circles(0);
+  };
+
+  // Bind our overlay to the map…
+  overlay.setMap(map);
+});
+
+    </script>
+  </body>
+</html>
