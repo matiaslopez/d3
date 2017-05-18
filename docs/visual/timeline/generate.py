@@ -91,7 +91,7 @@ for child_id, vals in children.iteritems():
     links.append({"source": vals["node_value"][1],
                 "target": vals["node_value"][2], "value": 0.08})
     links.append({"source": vals["node_value"][2],
-                "target": letters[vals["values"][0]]["node_value"][1], "value": 0.08})
+                "target": letters[vals["values"][2]]["node_value"][1], "value": 0.08})
 
 res = {"nodes": nodes, "links": links}
 json.dumps(res)
