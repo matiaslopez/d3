@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8">
+<html>
+  <head>
+  <title>Square</title>
+  </head>
+<body>
+http://javascript.tutorialhorizon.com/2014/11/20/a-visual-explanation-of-the-enter-update-and-exit-selections-in-d3js/
+
+<ul id="example">
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+</ul>
+
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script>
+var multiples = [5, 10, 15, 20, 25];
+// var multiples = [{num:2},{num: 4},{num: 6}, {num: 8}, {num: 10}];
+
+// Get hold of your container
+var container = d3.select('#example');
+
+// Get hold of all the existing list items within the container
+var children = container.selectAll('li');
+
+// Create a one-on-one mapping of the node with the data array.
+var updateSelection = children.data(multiples);
+// Create a one-on-one mapping of the node with the data array.
+// var updateSelection = children.data(multiples, function (d) {
+    // return d.num;
+// });
+updateSelection
+	.text(function(d) {return "Existing " + d;})
+
+// Mappings that represent pseudo DOM nodes that can potentially
+// be created for each data unit
+var enterSelection = updateSelection.enter();
+enterSelection
+	.append('li') // Create the DOM nodes for those mappings
+	// .append('label')
+	.text(function(d) {return d;})
+    // .text(function (d) {console.log(d); return d;});
+
+
+// mapping representing real DOM nodes that could not be
+// mapped to any item in the data
+var exitSelection = updateSelection.exit();
+exitSelection.text(function(d) {return "Extras " + d;})
+
+
+// d3.select('#example')
+    // .selectAll('li')
+    // .data(multiples, function (d) {console.log(d); return d.num;})
+    // .data(multiples)
+    // .enter() // Mappings that need DOM node creation
+    // .append('li') // Create the DOM nodes for those mappings
+    // .text(function (d) {console.log(d); return d;});
+
+</script>
+</body>
+</html>

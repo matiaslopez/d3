@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+  <head>
+  <title>Square</title>
+
+
+    <style>
+      body {
+        font-family: 'Open Sans', sans-serif;
+        /*font-size: 11px;*/
+        /*font-weight: 300;*/
+        /*fill: #242424;*/
+        text-align: center;
+        /*text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, -1px 0 0 #fff, 0 -1px 0 #fff;*/
+        /*cursor: default;*/
+      }
+
+      .legend {
+        font-family: 'Raleway', sans-serif;
+        fill: #333333;
+      }
+
+      .tooltip {
+        fill: #333333;
+      }
+
+      #buttons {
+        fill: #333333;
+        width: 20%;
+        float: left;
+      }
+      .radarChart {
+        fill: #333333;
+        width: 20%;
+        float: left;
+      }
+      .sliderLabel{
+        display: inline-block;
+        width: 150px;
+        text-align: right;
+      }
+      #sliders {
+        float: left;
+        width: 350px;
+      }
+      #svg {
+        float: left;
+        /*width: 300px;*/
+      }
+
+
+    </style>
+  </head>
+  <body>
+  <p>
+  <label for="nHeight"
+         style="display: inline-block; width: 240px; text-align: right">
+         height = <span id="nHeight-value">…</span>
+  </label>
+  <input type="range" min="0" max="30" id="nHeight">
+</p>
+
+<p>
+  <label for="nWidth"
+         style="display: inline-block; width: 240px; text-align: right">
+         width = <span id="nWidth-value">…</span>
+  </label>
+  <input type="range" min="0" max="30" id="nWidth">
+</p>
+
+<div id="sliders"></div>
+<div id="svgCanvas"></div>
+
+
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script>
+
+var dimensions = ["Cognition", "Temperament", "House", "Neighborhood", "Country"]
+
+var colors = ["#E84B30","#FFD432","#49E83E"]
+
+var pSliders = d3.select('#sliders')
+  .selectAll('p')
+  .data(dimensions).enter()
+  .append('p');
+pSliders
+  .append('label')
+    .attr('class', 'sliderLabel')
+    .attr('for', function (d) { return d; })
+    .text(function (d) { return d + " = "; })
+      .append('span')
+      .attr("id", function (d) { return "n" + d; })
+      .text("... ");
+var selects = pSliders
+  .append("input")
+    .attr('type','range')
+    .attr('min',"0")
+    .attr('max',"30")
+    .attr('id', function (d) { return d; })
+    .on('input', function (name) {
+        updateSlider(name,this.value);
+      })
+
+function updateSlider(name,value) {
+    d3.select("#n" + name).text(number_to_color_str(value));
+    d3.selectAll("svg").selectAll(("." + name))
+      .attr("cy", 25 + parseInt(value) * 8)
+      .style("fill", number_to_color(value));
+      // console.log(25 + parseInt(value))
+
+}
+
+
+// d3.selectAll('input')
+//   .data(dimensions).enter()
+//   .each(function(d){updateSlider(d,0);});
+
+
+var pSliders = d3.select('#sliders')
+  .selectAll('p')
+  .data(dimensions).enter()
+
+var width = 600;
+var height = 300;
+
+var holder = d3.select("#svgCanvas")
+    .append("svg")
+      .attr("width", width)
+      .attr("height", height);
+
+holder.selectAll('.circles')
+  .data(dimensions).enter()
+    .append('circle')
+    .attr('r', 10)
+    .attr('class','circles')
+    .attr('class',function(d,i){return d})
+    .attr('cy', 50/2)
+    .attr('cx', function(d,i){
+      //  console.log(i)
+      return 20+ 40 *i})
+
+// draw a rectangle
+holder.append("rect")
+    .attr("x", 300)
+    .attr("y", 150)
+    .style("fill", "none")
+    .style("stroke", "blue")
+    .attr("height", 150)
+    .attr("width", 200);
+
+// read a change in the height input
+d3.select("#nHeight").on("input", function() {
+  updateHeight(+this.value);
+});
+
+// read a change in the width input
+d3.select("#nWidth").on("input", function() {
+  updateWidth(+this.value);
+});
+
+// update the values
+updateHeight(30);
+updateWidth(30);
+
+// Update the height attributes
+function updateHeight(nHeight) {
+
+  // adjust the text on the range slider
+  d3.select("#nHeight-value").text(number_to_color_str(nHeight));
+  d3.select("#nHeight").property("value", nHeight);
+
+  // update the rectangle height
+  holder.selectAll("rect")
+    .attr("y", 150-(nHeight/2) * 10)
+    .attr("height", nHeight * 10);
+}
+
+function number_to_color_str(num) {
+  if (num > 20)
+    return "R";
+  if (num > 10)
+    return "Y";
+  return "G";
+}
+
+function number_to_color(num) {
+  // ["#E84B30","#FFD432","#49E83E"]
+  var str_color = number_to_color_str(num);
+  if (str_color == "R")
+    return "#E84B30";
+  if (str_color == "Y")
+    return "#FFD432";
+  return "#49E83E";
+}
+
+// Update the width attributes
+function updateWidth(nWidth) {
+
+  // adjust the text on the range slider
+  d3.select("#nWidth-value").text(number_to_color_str(nWidth));
+  d3.select("#nWidth").property("value", nWidth);
+
+  // update the rectangle width
+  holder.selectAll("rect")
+    .attr("x", 300-(nWidth/2)* 10)
+    .attr("width", nWidth* 10);
+}
+
+
+
+d3.selectAll('input')
+    .each(function(d, i) {
+      this.value = 0;
+      updateSlider(d, 0)
+      // console.log(d, i);
+    });
+
+
+</script>
+  </body>
+</html>

@@ -75,13 +75,11 @@
 			//////////////////////////////////////////////////////////////
 
 			var data = [
-				[//0
-				{axis: "Cognition", value: 2.5}, //GREEN
-				{axis: "Temperament", value: 1.5}, //YELLOW
-				{axis: "House", value: 0.5}, //RED
-				{axis: "Neighborhood", value: 1.5}, //YELLOW
-				{axis: "Country", value: 0.5}, //RED
-				]
+					{axis: "Cognition", value: 2.5}, //GREEN
+					{axis: "Temperament", value: 1.5}, //YELLOW
+					{axis: "House", value: 0.5}, //RED
+					{axis: "Neighborhood", value: 1.5}, //YELLOW
+					{axis: "Country", value: 0.5} //RED
 					];
 
 			var colorValues = [{name: "R", value:0.5},{name: "Y", value:1.5},{name: "G", value:2.5}]
@@ -90,12 +88,12 @@
 			//////////////////////////////////////////////////////////////
 			var selectDiv = d3.select('#buttons')
 			  .selectAll('select')
-			  .data(data[0]).enter()
+			  .data(data).enter()
 			  .append('div')
 			  	.attr('class','selectBox');
 			selectDiv
-			  .append('label')
-			  	.text(function (d) { return d.axis; });
+			  .append('input')
+			  	.attr("value", function (d) { return d.axis; });
 			var selects = selectDiv
 			  .append("select")
 			  	.attr('class','select')
@@ -138,7 +136,7 @@
 			};
 			//Call function to draw the Radar chart
 
-RadarChart(".radarChart", [data[0]], radarChartOptions);
+// RadarChart(".radarChart", [data], radarChartOptions);
 
 
 
@@ -153,6 +151,23 @@ d3.select("#buttons")
 			function save( dataBlob, filesize ){
 				saveAs( dataBlob, 'circleModel.png' ); // FileSaver.js function
 			}
+		});
+
+function get_name_and_value(t) {
+	var name = t.select("input").value;
+	var value = t.select("select").value;
+
+	return {axis: name, value: value};
+}
+d3.select("#buttons")
+		.append("input")
+		.attr("type","button")
+		.attr("class","button")
+		.attr("value", "Draw..." )
+		.on('click', function(q){
+			var all_selects = d3.selectAll('.selectBox');
+			var someInput = all_selects.selectAll("input");
+			RadarChart(".radarChart", [data], radarChartOptions);
 		});
 
 
