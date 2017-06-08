@@ -21,6 +21,27 @@
         <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
+    <style>
+        .checkout-badge {
+          width: 0;
+            height: 0;
+            border-top: 75px solid #ddd;
+            border-right: 105px solid transparent;
+            position: absolute;
+          top: 0;
+          left: 0;
+        }
+
+        .checkout-price {
+          color: #2da0ce;
+          color: #fff;
+          font-weight: bold;
+          position: absolute;
+          top: -55px;
+          left: 15px;
+          transform: rotate(-35deg);
+        }
+    </style>
 
 </head>
 
@@ -85,6 +106,9 @@
             <div class="col-md-8 portfolio-item">
                 <a href="../visual/radar/newRadar.html">
                     <img class="img-responsive" src="imgs/radar.png" alt="Radar">
+                        <div class="checkout-badge">
+                          <div class="checkout-price">NEW</div>
+                        </div>
                 </a>
                 <h3>
                     <a href="../visual/radar/newRadar.html">Radar score evaluation</a>
