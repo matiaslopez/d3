@@ -56,6 +56,14 @@
       }
 
 
+.linkPopulation {
+  color: #888888;
+  stroke-width: 1px;
+  text-decoration: none;
+  font-weight: bold;
+  font-variant: small-caps;
+}
+
     </style>
   </head>
   <body>
@@ -78,6 +86,13 @@
 <div id="sliders"></div>
 <!-- <div id="svgCanvas"></div> -->
 <!-- <div class="clear"></div> -->
+ Dimensions:
+  <a href="./newRadar.html?params=Cognition,Temperament,House" class="linkPopulation" id="link-all">3</a> -
+  <a href="./newRadar.html?params=Cognition,Temperament,House,Neighborhood" class="linkPopulation" id="link-all">4</a> -
+  <a href="./newRadar.html?params=Cognition,Temperament,House,Neighborhood,ScholarDistrict" class="linkPopulation" id="link-all">5</a> -
+  <a href="./newRadar.html?params=Cognition,Temperament,House,Neighborhood,ScholarDistrict,Country" class="linkPopulation" id="link-all">6</a> -
+  <a href="./newRadar.html?params=Cognition,Temperament,House,Neighborhood,ScholarDistrict,Country,Continent" class="linkPopulation" id="link-all">7</a>
+
 <div class="radarChart"></div>
 
 <script src="radarChartv2.js"></script>
@@ -85,16 +100,35 @@
 <script src="d3.min.js" charset="utf-8"></script>
 <script>
 
-var dimensions = ["Cognition", "Temperament", "House", "Neighborhood", "ScholarDistrict", "Country"]
+function getUrlVars()
+{
+    var vars = [], hash;
+    var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+    for(var i = 0; i < hashes.length; i++)
+    {
+        hash = hashes[i].split('=');
+        vars.push(hash[0]);
+        vars[hash[0]] = hash[1];
+    }
+    return vars;
+}
 
-var data = [
-    {axis: "Cognition", value: 2.5}, //GREEN
-    {axis: "Temperament", value: 1.5}, //YELLOW
-    {axis: "House", value: 0.5}, //RED
-    {axis: "Neighborhood", value: 1.5}, //YELLOW
-    {axis: "ScholarDistrict", value: 1.5}, //YELLOW
-    {axis: "Country", value: 0.5} //RED
-          ];
+var dimensions = ["Cognition", "Temperament", "House", "Neighborhood", "ScholarDistrict", "Country", "Continent"]
+vars = getUrlVars()
+if('undefined' !== typeof vars.params){
+  dimensions = vars.params.split(",")
+
+}//if
+
+var data = dimensions.map(function (d) {return {axis: d, value: 2}})
+// [
+//     {axis: "Cognition", value: 2.5}, //GREEN
+//     {axis: "Temperament", value: 1.5}, //YELLOW
+//     {axis: "House", value: 0.5}, //RED
+//     {axis: "Neighborhood", value: 1.5}, //YELLOW
+//     {axis: "ScholarDistrict", value: 1.5}, //YELLOW
+//     {axis: "Country", value: 0.5} //RED
+//           ];
 
 var color = d3.scale.ordinal()
   .range(["#45CCFF","#CC333F","#00A0B0","#B000A0"]);
@@ -260,10 +294,12 @@ function updateSlider(name,value) {
             }
             return d;
           });
-  console.log(name + " " + data.filter(function (d) {  return d.axis == name; }).value)
+  // console.log(name + " " + data.filter([filter])er(function (d) {  return d.axis == name; }).value)
   res.update(data) ;
 
 }
+
+
 </script>
   </body>
 </html>
