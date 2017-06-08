@@ -16,10 +16,17 @@
         min-width: 600px;
         max-width: 1200px;
         margin: auto;
+        text-align: center;
       }
       #chart {
-        height: 500px;
+        /*height: 500px;*/
         font: 13px sans-serif;
+      }
+      .chartHuge {
+        height: 1400px;
+      }
+      .chartRegular {
+        height: 500px;
       }
       .node rect {
         fill-opacity: .9;
@@ -34,26 +41,63 @@
         stroke: #000;
         stroke-opacity: .2;
       }
+
+      .linkDataset {
+        color: #888888;
+        stroke-width: 1px;
+        text-decoration: none;
+        font-weight: bold;
+        font-variant: small-caps;
+      }
     </style>
   </head>
   <body>
-    <div id="chart"></div>
+  <p>
+    Visualization: <a href="./index.html" class="linkDataset" id="dataset-original">Only Cognitive</a> -
+  <a href="./index.html?dataset=childrenHousehold.json" class="linkDataset" id="childrenHousehold">Include household</a> -
+  <a href="./index.html?dataset=childrenHouseholdFull.json" class="linkDataset" id="childrenHouseholdFull">Include household huge</a>
+</p>
+    <div id="chart" class="chartRegular"></div>
 
     <script>
+    // Read a page's GET URL variables and return them as an associative array.
+    function getUrlVars()
+    {
+        var vars = [], hash;
+        var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+        for(var i = 0; i < hashes.length; i++)
+        {
+            hash = hashes[i].split('=');
+            vars.push(hash[0]);
+            vars[hash[0]] = hash[1];
+        }
+        return vars;
+    }
+
+    var a = getUrlVars()
+    var dataset = "childrenReduced.json"
+    if (a.dataset !== undefined){
+      d3.selectAll("#" + a.dataset.split(".")[0]).style("color", "#6666EE");
+      dataset = a.dataset
+    } else {
+      d3.selectAll("#dataset-original").style("color", "#6666EE");
+    }
       var colors = {
-            'environment':         '#edbd00',
-            'social':              '#367d85',
-            'animals':             '#97ba4c',
-            'health':              '#f5662b',
-            'research_ingredient': '#3f3e47',
-            'fallback':            '#9f9fa3',
+            // 'environment':         '#edbd00',
+            // 'social':              '#367d85',
+            // 'animals':             '#97ba4c',
+            // 'health':              '#f5662b',
+            // 'research_ingredient': '#3f3e47',
             'red':                 '#E84B30',
             'yellow':              '#FFD432',
             'green':               '#49E83E',
+            'fallback':            '#9f9fa3',
           };
-      // d3.json("product.json", function(error, json) {
-      // d3.json("children.json", function(error, json) {
-      d3.json("childrenReduced.json", function(error, json) {
+      // d3.json("childrenReduced.json", function(error, json) {
+      d3.json(dataset, function(error, json) {
+        if (json.nodes.length > 150) {
+          d3.selectAll("#chart").classed("chartRegular", false).classed("chartHuge", true);
+        }
         var chart = d3.select("#chart").append("svg").chart("Sankey.Path");
         chart
           .name(label)
