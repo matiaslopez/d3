@@ -55,7 +55,7 @@ if True:
          (1, [2, 2, 1]), (1, [2, 0, 0]), (1, [1, 1, 1]), (1, [2, 0, 1]), (1, [2, 1, 2]), (1, [2, 2, 2]), (1, [0, 2, 1]), (1, [2, 1, 2]), (1, [2, 2, 2]), (1, [2, 2, 1]),
          (2, [2, 0, 1]), (2, [2, 1, 2]), (2, [2, 2, 1]), (2, [1, 0, 2]), (2, [1, 2, 2]), (2, [1, 0, 1]), (2, [1, 0, 1]), (2, [2, 2, 2]), (2, [2, 2, 1]), (2, [0, 0, 0])]
 
-    small_pop = full_pop
+    # small_pop = full_pop
     children = {}
 
     for i, k in enumerate(small_pop):
@@ -66,7 +66,8 @@ if True:
 
     nodes.append({"node": 0, "name": "Population", "id": "any_score"})
 
-    for k in sorted(letters.keys(), reverse=True):
+    # for k in sorted(letters.keys(), reverse=True):
+    for k in sorted(letters.keys(), reverse=False):
         letters[k]["node_value"].append(len(nodes))
         nodes.append({"node": len(nodes), "name": "Household {}".format(letters[k]["string"]), "id": letters[k]["col_string"]})
         letters[k]["node_value"].append(len(nodes))
@@ -75,7 +76,8 @@ if True:
 
     for qqq in [0, 1, 2]:
         base_line = len(nodes)
-        ord_list = sorted([(k,v) for k,v in children.iteritems()], key=(lambda x: x[1]["values"][qqq]), reverse=True)
+        # ord_list = sorted([(k,v) for k,v in children.iteritems()], key=(lambda x: x[1]["values"][qqq]), reverse=True)
+        ord_list = sorted([(k,v) for k,v in children.iteritems()], key=(lambda x: x[1]["values"][qqq]))
 
         for i, (child_id, vals) in enumerate(ord_list):
             # {"node": 1, "name": "Subject 1", "id": "yellow_score", "id_old": "hour_score"},
@@ -101,7 +103,8 @@ if True:
     res = {"nodes": nodes, "links": links}
     print json.dumps(res)
 
-if False:
+if True:
+    print "------------------"
     children_real_raw = [[0, 2, 1], [0, 0, 0], [0, 1, 2], [0, 2, 1], [0, 0, 1], [0, 1, 1], [0, 0, 1], [0, 0, 1],
      [1, 1, 1],  [1, 0, 2],  [1, 2, 2],  [1, 0, 1],  [1, 0, 1],  [1, 0, 0],  [1, 1, 2],  [1, 0, 2],
      [2, 2, 1], [2, 0, 1], [2, 0, 0], [2, 0, 1], [2, 1, 2], [2, 1, 2], [2, 2, 2], [2, 2, 1]]
@@ -118,7 +121,8 @@ if False:
 
     nodes.append({"node": 0, "name": "Population", "id": "any_score"})
 
-    for k in sorted(letters.keys(), reverse=True):
+    # for k in sorted(letters.keys(), reverse=True):
+    for k in sorted(letters.keys()):
         letters[k]["node_value"].append(len(nodes))
         nodes.append({"node": len(nodes), "name": "Initial {}".format(letters[k]["string"]), "id": letters[k]["col_string"]})
         letters[k]["node_value"].append(len(nodes))
@@ -127,7 +131,8 @@ if False:
 
     for qqq in [0, 1,2]:
         base_line = len(nodes)
-        ord_list = sorted([(k,v) for k,v in children.iteritems()], key=(lambda x: x[1]["values"][qqq]), reverse=True)
+        # ord_list = sorted([(k,v) for k,v in children.iteritems()], key=(lambda x: x[1]["values"][qqq]), reverse=True)
+        ord_list = sorted([(k,v) for k,v in children.iteritems()], key=(lambda x: x[1]["values"][qqq]))
 
         for i, (child_id, vals) in enumerate(ord_list):
             # {"node": 1, "name": "Subject 1", "id": "yellow_score", "id_old": "hour_score"},
@@ -151,4 +156,4 @@ if False:
                     "target": letters[vals["values"][2]]["node_value"][1], "value": 0.08})
 
     res = {"nodes": nodes, "links": links}
-    json.dumps(res)
+    print json.dumps(res)
