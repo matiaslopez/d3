@@ -4,7 +4,7 @@
 
 body { font: 12px Arial;}
 
-path { 
+path {
     stroke: steelblue;
     stroke-width: 2;
     fill: none;
@@ -21,8 +21,8 @@ path {
 </style>
 <body>
 
-<!-- load the d3.js library -->    
-<script src="http://d3js.org/d3.v3.min.js"></script>
+<!-- load the d3.js library -->
+<script src="https://d3js.org/d3.v3.min.js"></script>
 
 <script>
 
@@ -51,19 +51,19 @@ var yAxis = d3.svg.axis().scale(y)
 var valueline = d3.svg.line()
     .x(function(d) { return x(d.date); })
     .y(function(d) { return y(d.close); });
-    
+
 // Adds the svg canvas
 var svg = d3.select("body")
     .append("svg")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
     .append("g")
-        .attr("transform", 
+        .attr("transform",
               "translate(" + margin.left + "," + margin.top + ")");
 
-var lineSvg = svg.append("g"); 
+var lineSvg = svg.append("g");
 
-var focus = svg.append("g") 
+var focus = svg.append("g")
     .style("display", "none");
 
 // Get the data
@@ -144,7 +144,7 @@ d3.csv("my_csv.csv", function(error, data) {
         .attr("class", "y4")
         .attr("dx", 8)
         .attr("dy", "1em");
-    
+
     // append the rectangle to capture mouse
     svg.append("rect")
         .attr("width", width)
