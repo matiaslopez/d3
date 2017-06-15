@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<head>
+<meta charset="utf-8">
+<title>Level performance</title>
+  <link rel="stylesheet" href="style.css" />
+
+<style>
+  body {
+    font-family: 'Open Sans', sans-serif;
+    text-align: center;
+  }
+
+  #controls {
+    font-family: 'Raleway', sans-serif;
+    fill: #333333;
+  }
+
+  .tooltip {
+    fill: #333333;
+  }
+
+  #buttons {
+    fill: #333333;
+    width: 20%;
+    float: left;
+  }
+</style>
+</head>
+<body>
+<!-- http://bl.ocks.org/AMDS/4a61497182b8fcb05906 -->
+<!-- https://bl.ocks.org/mbostock/3719724 -->
+<script src="d3.v4.min.js"></script>
+<script src="d3-selection-multi.v0.4.min.js"></script>
+<div  id='chart' style="text-align:center;"></div>
+
+<div class="wrapper">
+  <textarea rows="4" cols="50" id="inputCSV">
+  Hola!
+  </textarea>
+<div>
+
+<div class="wrapper">
+  <input type="button" value="Parse CSV" onclick="plot();" />
+<div>
+<script>
+
+function parseTrialResult(t) {
+  if (t == "trialWon") {
+    return 1;
+  }
+  if (t == "trialLost") {
+    return 0;
+  }
+  return parseInt(t);
+}
+
+
+
+var clickToggle = false;
+var usernames;
+var maxTrial = 0;
+function plot() {
+  usernames = {}
+  usernames.len = {len: 0};
+  var raw = document.getElementById("inputCSV").value;
+  data = d3.csvParse(raw);
+
+  data.forEach(function(d) {
+    //d.date = parseDate(d.date);
+    d.trial_result = parseTrialResult(d.trial_result); //parseDate(d.date);
+    if (!usernames.hasOwnProperty(d.username)) {
+      usernames[d.username] = {key: d.username, score: 0, play: 0, idxValue:usernames.len.len};
+      usernames.len.len += 1;
+    }
+    usernames[d.username].score += d.trial_result;
+    usernames[d.username].play += 1;
+    d.uid = usernames[d.username].idxValue;
+    d.username = d.username;
+    d.trial_number = d.trial_number;
+    maxTrial = Math.max(maxTrial, d.trial_number);
+    d.stimulus_amount = (typeof d.stimulus_amount === 'undefined') ? "NA" : d.stimulus_amount;
+  });
+
+  buildChart();
+}
+
+
+
+d3.text("data.csv", function(text) {
+  document.getElementById("inputCSV").innerHTML = text;
+  plot();
+});
+
+
+var margin = {  top: 30, right: 10, bottom: 100, left: 140},
+  chartWidth = 1000,
+  chartHeight = 600,
+  gridSize = 10,
+  trial_numberPadding = 10,
+  colorScale = null,
+  mintrial_result = 0,
+  maxtrial_result = 1;
+
+
+
+
+function  buildChart() {
+  d3.select("#chart").select("svg").remove();
+  console.log("Building chart...");
+
+  // color scale
+  colorScale = d3.scaleQuantize()
+    .domain([mintrial_result, maxtrial_result])
+    .range(["#E84B30","#49E83E"]);
+
+  var firsttrial_number = 1; //data[0].trial_number;
+  var lasttrial_number = maxTrial; //data[data.length - 1].trial_number;
+
+  var width = chartWidth - margin.left - margin.right,
+    height = chartHeight - margin.top - margin.bottom,
+    users = d3.entries(usernames).filter(function(d) {return d.key!="len"});
+
+  gridSize = (width - (trial_numberPadding * 2)) / maxTrial;
+  height = gridSize * usernames.len.len - margin.top - margin.bottom;
+
+  // svg
+  var svg = d3.select("#chart").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+    .attr("transform", "translate(" + margin.left + ", " + margin.top + ")");
+
+  // username labels
+  var usernameLabels = svg.append("g").selectAll(".usernameLabel")
+    .data(users)
+    .enter()
+    .append("text")
+    .text(function (d) { return d.key + " (" +d.value.score + ")"; })
+    .attrs({
+      x: function (d) { return 0},
+      y: function (d) { return (d.value.idxValue) * gridSize  + 5; },
+      transform: function (d) { return "translate(-70, " + gridSize / 1.5 + ")"},
+      class: function (d) { return "usernameLabel uidValue" + d.value.idxValue},
+    })
+    .style("text-anchor", "middle");
+
+   // trial labels
+  var trialLabels = svg.append("g").selectAll(".trialLabel")
+    .data(d3.range(1,maxTrial+1,1))
+    .enter()
+    .append("text")
+    .text(function (d) { return d; })
+    .attrs({
+      x: function (d) { return (d) * gridSize - trial_numberPadding;},
+      y: function (d) { return 0 },
+      // transform: function (d) { return "translate(-50, " + gridSize / 1.5 + ")"},
+      class: function (d) { return "usernameLabel trialValue" + d}
+    })
+    .style("text-anchor", "middle");
+
+  // chart
+  var chart = svg.append("g").selectAll(".username")
+    .data(data)
+    .enter()
+    .append("rect")
+    .attrs({
+      x: function (d, i) {
+        return (d.trial_number - 1) * gridSize + trial_numberPadding/2;
+      },
+      y: function (d) { return (d.uid) * gridSize + 5; },
+      //rx: 4,
+      //ry: 4,
+      width: gridSize,
+      height: gridSize,
+      fill: function (d) { return colorScale(d.trial_result)},
+      "class": function (d) { return "bordered trialRes trialValue" + d.trial_number + " uidValue" + d.uid + " trialRes" + d.trial_result}
+    })
+    .on("click", highlightTrial);;
+
+    function highlightTrial(d) {
+        if (!clickToggle) {
+            // var className = "trialValue" + d.trial_number;
+            console.log(d.style("fill-opacity"))
+            d3.selectAll(".trialRes").transition().style("fill-opacity", function (elem) {
+                if (elem.trial_number !== d.trial_number && elem.uid !== d.uid) return 0.07;
+            })
+        } else {
+            d3.selectAll(".trialRes").transition().style("fill-opacity", 1);
+        }
+        clickToggle = !clickToggle;
+    }
+
+  // chart color transition
+  // chart.transition().duration(1000)
+  //   .style("fill", function (d) {
+  //     if (d.trial_number != lasttrial_number) {
+  //       return colorScale(d.trial_result);
+  //     } else {
+  //       return "#e4e4e4";
+  //     }
+  //   });
+
+    // title
+  chart.append("title").text(function(d) { return "Trial " + d.trial_number + "\nStimulus amount: " + d.stimulus_amount ; });
+}
+
+
+</script>
+</body>

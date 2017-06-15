@@ -1,0 +1,35 @@
+body {
+    font-family: Arial;
+    color: #333333;
+}
+h1 {
+    margin: 20px 0 20px 0;
+    padding: 0;
+    font-size: 64px;
+    font-weight: normal;
+    letter-spacing: -2px;
+}
+div.wrapper {
+    width: 1001px;
+    margin: 0 auto;
+    text-align: center;
+    clear: both;
+}
+div.wrapper textarea{
+     display:inline-block;
+}
+div.wrapper input{
+    margin: 20px 0 20px 0;
+    /*color: red;*/
+    display:inline-block;
+}
+div#chart {
+	overflow: auto;
+}
+rect.bordered {
+    stroke: #ffffff;
+    stroke-width: 2px;
+}
+.itemLabel {
+    font-size: 11px;
+}
