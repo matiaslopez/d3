@@ -180,7 +180,6 @@ function  buildChart() {
     function highlightTrial(d) {
         if (!clickToggle) {
             // var className = "trialValue" + d.trial_number;
-            console.log(d.style("fill-opacity"))
             d3.selectAll(".trialRes").transition().style("fill-opacity", function (elem) {
                 if (elem.trial_number !== d.trial_number && elem.uid !== d.uid) return 0.07;
             })
