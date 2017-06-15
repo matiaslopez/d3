@@ -181,7 +181,7 @@ function  buildChart() {
         if (!clickToggle) {
             // var className = "trialValue" + d.trial_number;
             d3.selectAll(".trialRes").transition().style("fill-opacity", function (elem) {
-                if (elem.trial_number !== d.trial_number && elem.uid !== d.uid) return 0.07;
+                if (elem.trial_number !== d.trial_number && elem.uid !== d.uid) return 0.2;
             })
         } else {
             d3.selectAll(".trialRes").transition().style("fill-opacity", 1);
