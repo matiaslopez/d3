@@ -86,6 +86,7 @@ var x = d3.scale.ordinal().rangeBands([0, width]),
     colorScale = ["#444666","#E84B30","#49E83E"];
 
 var svg;
+var clickToggle = false;
 
 function plot() {
   var raw = document.getElementById("inputCSV").value;
@@ -244,6 +245,7 @@ function  buildChart() {
         .style("fill", function(d) { return colorScale[d.res+1]; })
         .on("mouseover", mouseover)
         .on("mouseout", mouseout)
+        .on("click", highlightTrial)
         .append("title")
         .text(function(d) { return "(" + d.x +", " + d.y + "): " + d.res ; })
   }
@@ -255,6 +257,19 @@ function  buildChart() {
 
   function mouseout() {
     d3.selectAll("text").classed("active", false);
+  }
+
+
+  function highlightTrial(d) {
+      if (!clickToggle) {
+          // var className = "trialValue" + d.trial_number;
+          d3.selectAll(".cell").transition().style("fill-opacity", function (elem) {
+              if (elem.x !== d.x && elem.y !== d.y) return 0.2;
+          })
+      } else {
+          d3.selectAll(".cell").transition().style("fill-opacity", 1);
+      }
+      clickToggle = !clickToggle;
   }
 
   d3.select("#orderY").on("change", function() {
@@ -305,10 +320,11 @@ function  buildChart() {
         // .delay(function(d, i) { return x(i) * 4; })
         // .attr("transform", function(d, i) { return "translate(" + x(i) + ")rotate(-90)"; });
   }
+  var timeout;
 
   // var timeout = setTimeout(function() {
-  //   order_Y("play");
-  //   d3.select("#orderY").property("selectedIndex", 1).node().focus();
+    // order_Y("play");
+    // d3.select("#orderY").property("selectedIndex", 1).node().focus();
   // }, 5000);
 };
 
