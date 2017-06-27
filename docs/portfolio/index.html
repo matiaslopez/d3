@@ -41,6 +41,28 @@
           left: 15px;
           transform: rotate(-35deg);
         }
+
+        #gschoolar {
+           background-image: url("imgs/logos/ghat-grey_small.png");
+           height: 25px;
+           width: 20px;
+        }
+
+        #gschoolar:hover {
+           background-image: url("imgs/logos/ghat-white_small.png");
+        }
+
+        #github {
+           background-image: url("imgs/logos/github-grey_small.png");
+           height: 25px;
+           width: 25px;
+        }
+
+        #github:hover {
+           background-image: url("imgs/logos/github-white_small.png");
+        }
+
+
     </style>
 
 </head>
@@ -59,20 +81,25 @@
                     <span class="icon-bar"></span>
                 </button>
                 <a class="navbar-brand" href="http://www.dc.uba.ar/~mlopez">
-                	<span class="glyphicon glyphicon-fire"></span>
+                	<span class="glyphicon"></span>
                 	Matías Lopez-Rosenfeld
                 </a>
             </div>
             <!-- Navbar links -->
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                 <ul class="nav navbar-nav">
+                    <!-- <li class="active"> -->
                     <li>
-                        <a href="#"></a>
+                        <a href="https://scholar.google.com.ar/citations?user=i3xrngYAAAAJ&hl=en">
+                            <div id="gschoolar"></div>
+                        </a>
                     </li>
                     <li>
-                        <a href="#"></a>
+                        <a href="https://github.com/matiaslopez">
+                            <div id="github"></div>
+                        </a>
                     </li>
-                    <li class="active">
+                    <li>
                         <a href="#"></a>
                     </li>
                 </ul>
@@ -102,13 +129,21 @@
 
         <!-- Projects Row -->
         <div class="row">
-            <div class="col-md-2 portfolio-item"></div>
-            <div class="col-md-8 portfolio-item">
-                <a href="../visual/radar/index.html">
-                    <img class="img-responsive" src="imgs/radar.png" alt="Radar">
+            <div class="col-md-6 portfolio-item">
+                <a href="../visual/levelPerformance/index.html">
+                    <img class="img-responsive" src="imgs/levelPerformance.png" alt="levelPerformance">
                         <div class="checkout-badge">
                           <div class="checkout-price">NEW</div>
                         </div>
+                </a>
+                <h3>
+                    <a href="../visual/levelPerformance/index.html">Performance sortable matrix</a>
+                </h3>
+                <p>Performance of trials across subjects. <a href="zips/levelPerformance.zip">Download offline version.</a></p>
+            </div>
+            <div class="col-md-6 portfolio-item">
+                <a href="../visual/radar/index.html">
+                    <img class="img-responsive" src="imgs/radar.png" alt="Radar">
                 </a>
                 <h3>
                     <a href="../visual/radar/index.html">Radar score evaluation</a>

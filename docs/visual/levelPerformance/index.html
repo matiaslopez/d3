@@ -1,49 +1,72 @@
 <!DOCTYPE html>
-<head>
 <meta charset="utf-8">
-<title>Level performance</title>
+<title>Matrix moving</title>
+<style>
+
+@import url(d3.css);
+
+.background {
+  fill: #eee;
+}
+
+line {
+  stroke: #fff;
+}
+
+text.active {
+  fill: red;
+}
+
+</style>
+<script src="d3.v3.min.js"></script>
+<!-- <script src="js/jquery-1.8.2.min.js"></script> -->
+
+
+<header>
   <link rel="stylesheet" href="style.css" />
 
-<style>
-  body {
-    font-family: 'Open Sans', sans-serif;
-    text-align: center;
-  }
+</header>
 
-  #controls {
-    font-family: 'Raleway', sans-serif;
-    fill: #333333;
-  }
+<h1>Performance <i>exploration</i></h1>
 
-  .tooltip {
-    fill: #333333;
-  }
+<div class="wrapper">
+  <p>Sort users users by: <select id="orderY">
+    <option value="name">by Name</option>
+    <option value="play">by Trials played</option>
+    <option value="score">by Trials correct</option>
+  </select>
 
-  #buttons {
-    fill: #333333;
-    width: 20%;
-    float: left;
-  }
-</style>
-</head>
-<body>
-<!-- http://bl.ocks.org/AMDS/4a61497182b8fcb05906 -->
-<!-- https://bl.ocks.org/mbostock/3719724 -->
-<!-- http://colloquial.herokuapp.com/vis -->
-<!-- https://stats.idre.ucla.edu/stata/modules/reshaping-data-wide-to-long/ -->
-<!-- http://bl.ocks.org/hungvietdo/raw/7f8df0bcd7fba7e531e6/ -->
-<script src="d3.v4.min.js"></script>
-<script src="d3-selection-multi.v0.4.min.js"></script>
-<div  id='chart' style="text-align:center;"></div>
-
+  <p>Sort trials by: <select id="orderX">
+    <option value="name">by Name</option>
+    <option value="play">by Users played</option>
+    <option value="score">by Users correct</option>
+  </select>
+</div>
+<div class="wrapper">
+  <div  id='chart' style="text-align:center;"></div>
+</div>
 <div class="wrapper">
   <textarea rows="4" cols="50" id="inputCSV">
   Hola!
   </textarea>
-<div>
+</div>
 
 <div class="wrapper">
   <input type="button" value="Parse CSV" onclick="plot();" />
+</div>
+<div>
+  <h2>CSV requirements</h2>
+  <ul>
+    <li>Fields separator: <b>,</b></li>
+    <li>Columns requiered:
+        <ul>
+          <li><b>username</b>: string</li>
+          <li><b>trial_number</b>: integer</li>
+          <li><b>trial_result</b>: (0/1), or (trialLost/trialWon)</li>
+        </ul>
+    </li>
+
+  </ul>
 <div>
 <script>
 
@@ -59,15 +82,57 @@ function parseTrialResult(t) {
 
 
 
-var clickToggle = false;
-var usernames;
-var maxTrial = 0;
-function plot() {
-  usernames = {}
-  usernames.len = {len: 0};
-  var raw = document.getElementById("inputCSV").value;
-  data = d3.csvParse(raw);
+var margin = {top: 80, right: 0, bottom: 10, left: 80},
+    width = 720,
+    height = 720,
+    usernames;
 
+var orders_Y;
+var matrix;
+var users;
+var users_length;
+var trials;
+
+var x = d3.scale.ordinal().rangeBands([0, width]),
+    y = d3.scale.ordinal().rangeBands([0, height]),
+    z = d3.scale.linear().domain([-1, 1]).clamp(true),
+    c = d3.scale.category10().domain(d3.range(10)),
+    colorScale = ["#444666","#E84B30","#49E83E"];
+
+var svg;
+var clickToggle = false;
+
+function plot() {
+  var raw = document.getElementById("inputCSV").value;
+  data = d3.csv.parse(raw);
+  usernames = {};
+  usernames.len = {len: 0};
+  matrix = [];
+  users_length = 0;
+  trials = [];
+  buildChart();
+}
+
+
+
+d3.text("data_reduced.csv", function(text) {
+  document.getElementById("inputCSV").innerHTML = text;
+  plot();
+});
+
+
+
+function  buildChart() {
+  d3.select("#chart").select("svg").remove();
+  console.log("Building chart...");
+
+  var maxTrial = 0;
+  svg = d3.select("#chart").append("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+      .style("margin-left", -margin.left + "px")
+    .append("g")
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
   data.forEach(function(d) {
     //d.date = parseDate(d.date);
     d.trial_result = parseTrialResult(d.trial_result); //parseDate(d.date);
@@ -84,128 +149,238 @@ function plot() {
     d.stimulus_amount = (typeof d.stimulus_amount === 'undefined') ? "NA" : d.stimulus_amount;
   });
 
-  buildChart();
-}
+  console.log("Load complete!");
+
+  //nodes = miserables.nodes,
+  users = d3.entries(usernames).filter(function(d) {return d.key!="len"});
+  var n = maxTrial;
+  users_length = users.length
+  trials = d3.range(1,n+1).map(function(j) { return {x: j, y: 0, play: 0, score: 0}; });
+
+  // Compute index per node.
+  users.forEach(function(usr) {
+    matrix[usr.value.idxValue] = d3.range(n+1).map(function(j) { return {x: j, y: usr.value.idxValue, res: -1}; });
+    usr.idxValue = usr.value.idxValue;
+    usr.play = usr.value.play;
+    usr.score = usr.value.score;
+    usr.value = undefined;
+  });
+
+  // Convert links to matrix; count character occurrences.
+  data.forEach(function(row) {
+    matrix[row.uid][row.trial_number].res = row.trial_result;
+    trials[row.trial_number-1].play += 1;
+    trials[row.trial_number-1].score += row.trial_result;
+  });
+
+  function order_funct(a,b,idx,second_idx) {
+   return a[idx] < b[idx] ? -1 :
+            a[idx] > b[idx] ? 1 :
+            a[second_idx] < b[second_idx] ? -1 : 1;
+  }
+  function order_funct_2(a,b,idx,second_idx) {
+   return a[idx] < b[idx] ? -1 :
+            a[idx] > b[idx] ? 1 :
+            a[second_idx] > b[second_idx] ? -1 : 1;
+  }
+
+  // Precompute the orders_Y.
+  orders_Y = {
+    name: d3.range(users_length).sort(function(a, b) { return d3.ascending(a, b); }),
+    play: d3.range(users_length).sort(function(a, b) { return -order_funct(users[a], users[b], "play", "key"); }),
+    score: d3.range(users_length).sort(function(a, b) { return -order_funct(users[a], users[b], "score", "key"); })
+  };
+
+  // Precompute the orders_X.
+  orders_X = {
+    name: d3.range(maxTrial).sort(function(a, b) { return d3.ascending(trials[a].x, trials[b].x); }),
+    play: d3.range(maxTrial).sort(function(a, b) { return -order_funct_2(trials[a], trials[b], "play", "x"); }),
+    score: d3.range(maxTrial).sort(function(a, b) { return -order_funct_2(trials[a], trials[b], "score", "x"); })
+  };
+
+  // The default sort order.
+  y.domain(orders_Y.name);
+  x.domain(orders_X.name);
+
+  svg.append("rect")
+      .attr("class", "background")
+      .attr("width", width)
+      .attr("height", height);
+
+  var row = svg.selectAll(".row")
+      .data(matrix)
+    .enter().append("g")
+      .attr("class", "row")
+      .attr("transform", function(d, i) { return "translate(0," + y(i) + ")"; })
+      .each(row);
+
+  row.append("line")
+      .attr("x2", width);
+
+  row.append("text")
+      .attr("x", -6)
+      .attr("y", y.rangeBand() / 2)
+      .attr("dy", ".32em")
+      .attr("text-anchor", "end")
+      .text(function(d) { return users.find(function(i) {return i.idxValue==d[0].y}).key + " (" +
+            users.find(function(i) {return i.idxValue==d[0].y}).score + ")"});
+      // .text(function(d, i) { return d3.values(users).filter(function(d) {return d.idxValue==i})[0].username; });
+
+  var column = svg.selectAll(".column")
+      .data(d3.range(1,maxTrial+1,1))
+    .enter().append("g")
+      .attr("class", "column")
+      .attr("transform", function(d, i) { return "translate(" + x(i) + ")rotate(-90)"; });
+
+  column.append("line")
+      .attr("x1", -width);
+
+  column.append("text")
+      .attr("x", 6)
+      .attr("y", y.rangeBand() / 2)
+      .attr("dy", ".32em")
+      .attr("text-anchor", "start")
+      // .text("bla")
+      // .text(function(d, i) { return d3.values(users).filter(function(d) {return d.idxValue==i})[0].username; });
+      .text(function(d, i) { return "Trial " + d});
+
+  function row(row) {
+    var cell = d3.select(this).selectAll(".cell")
+        // .data(row.filter(function(d) { return d.res; }))
+        .data(row)
+      .enter().append("rect")
+        .attr("class", "cell")
+        .attr("x", function(d) { return x(d.x-1); })
+        // .attr("y", function(d) { return y(d.y); })
+        .attr("width", x.rangeBand())
+        .attr("height", y.rangeBand())
+        .style("fill-opacity", function(d) { return z(d.z); })
+        // .style("fill", function(d) { return nodes[d.x].group == nodes[d.y].group ? c(nodes[d.x].group) : null; })
+        .style("fill", function(d) { return colorScale[d.res+1]; })
+        .on("mouseover", mouseover)
+        .on("mouseout", mouseout)
+        .on("click", highlightTrial)
+        .append("title")
+        .text(function(d) { return "(" + d.x +", " + d.y + "): " + d.res ; })
+  }
+
+  function mouseover(p) {
+    d3.selectAll(".row text").classed("active", function(d, i) { return i == p.y; });
+    d3.selectAll(".column text").classed("active", function(d, i) { return i == p.x-1; });
+  }
+
+  function mouseout() {
+    d3.selectAll("text").classed("active", false);
+  }
+
+
+  function highlightTrial(d) {
+      if (!clickToggle) {
+          // var className = "trialValue" + d.trial_number;
+          d3.selectAll(".cell").transition().style("fill-opacity", function (elem) {
+              if (elem.x !== d.x && elem.y !== d.y) return 0.2;
+          })
+      } else {
+          d3.selectAll(".cell").transition().style("fill-opacity", 1);
+      }
+      clickToggle = !clickToggle;
+  }
+
+  d3.select("#orderY").on("change", function() {
+    clearTimeout(timeout);
+    order_Y(this.value);
+  });
+
+  d3.select("#orderX").on("change", function() {
+    clearTimeout(timeout);
+    order_X(this.value);
+  });
+
+  function order_Y(value) {
+    y.domain(orders_Y[value]);
+
+    var t = svg.transition().duration(2500);
+
+    t.selectAll(".row")
+        .delay(function(d, i) { return y(i) * 4; })
+        .attr("transform", function(d, i) { return "translate(0," + y(i) + ")"; })
+      .selectAll(".cell")
+        .delay(function(d) { return y(d.x) * 4; })
+        // .attr("x", function(d) { return x(d.x); });
+
+    // t.selectAll(".column")
+    //     .delay(function(d, i) { return x(i) * 4; })
+    //     .attr("transform", function(d, i) { return "translate(" + x(i) + ")rotate(-90)"; });
+  }
+
+  function order_X(value) {
+    x.domain(orders_X[value]);
+
+    var t = svg.transition().duration(2500);
+
+    t.selectAll(".column")
+        .delay(function(d, i) { return x(i) * 4; })
+        .attr("transform", function(d, i) { return "translate(" + x(i) + ")rotate(-90)"; })
+      .selectAll(".cell")
+        .delay(function(d) { return x(d.y) * 4; })
+        // .attr("x", function(d) { return x(d.y); });
+
+    t.selectAll(".row")
+      .selectAll(".cell")
+        .delay(function(d) { return x(d.x-1) * 4; })
+        .attr("x", function(d) { return x(d.x-1); });
+
+    // t.selectAll(".column")
+        // .delay(function(d, i) { return x(i) * 4; })
+        // .attr("transform", function(d, i) { return "translate(" + x(i) + ")rotate(-90)"; });
+  }
+  var timeout;
+
+  // var timeout = setTimeout(function() {
+    // order_Y("play");
+    // d3.select("#orderY").property("selectedIndex", 1).node().focus();
+  // }, 5000);
+};
 
 
 
-d3.text("data.csv", function(text) {
-  document.getElementById("inputCSV").innerHTML = text;
-  plot();
-});
-
-
-var margin = {  top: 30, right: 10, bottom: 100, left: 140},
-  chartWidth = 1000,
-  chartHeight = 600,
-  gridSize = 10,
-  trial_numberPadding = 10,
-  colorScale = null,
-  mintrial_result = 0,
-  maxtrial_result = 1;
-
-
-
-
-function  buildChart() {
-  d3.select("#chart").select("svg").remove();
-  console.log("Building chart...");
-
-  // color scale
-  colorScale = d3.scaleQuantize()
-    .domain([mintrial_result, maxtrial_result])
-    .range(["#E84B30","#49E83E"]);
-
-  var firsttrial_number = 1; //data[0].trial_number;
-  var lasttrial_number = maxTrial; //data[data.length - 1].trial_number;
-
-  var width = chartWidth - margin.left - margin.right,
-    height = chartHeight - margin.top - margin.bottom,
-    users = d3.entries(usernames).filter(function(d) {return d.key!="len"});
-
-  gridSize = (width - (trial_numberPadding * 2)) / maxTrial;
-  height = gridSize * usernames.len.len - margin.top - margin.bottom;
-
-  // svg
-  var svg = d3.select("#chart").append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
-    .append("g")
-    .attr("transform", "translate(" + margin.left + ", " + margin.top + ")");
-
-  // username labels
-  var usernameLabels = svg.append("g").selectAll(".usernameLabel")
-    .data(users)
-    .enter()
-    .append("text")
-    .text(function (d) { return d.key + " (" +d.value.score + ")"; })
-    .attrs({
-      x: function (d) { return 0},
-      y: function (d) { return (d.value.idxValue) * gridSize  + 5; },
-      transform: function (d) { return "translate(-70, " + gridSize / 1.5 + ")"},
-      class: function (d) { return "usernameLabel uidValue" + d.value.idxValue},
-    })
-    .style("text-anchor", "middle");
-
-   // trial labels
-  var trialLabels = svg.append("g").selectAll(".trialLabel")
-    .data(d3.range(1,maxTrial+1,1))
-    .enter()
-    .append("text")
-    .text(function (d) { return d; })
-    .attrs({
-      x: function (d) { return (d) * gridSize - trial_numberPadding;},
-      y: function (d) { return 0 },
-      // transform: function (d) { return "translate(-50, " + gridSize / 1.5 + ")"},
-      class: function (d) { return "usernameLabel trialValue" + d}
-    })
-    .style("text-anchor", "middle");
-
-  // chart
-  var chart = svg.append("g").selectAll(".username")
-    .data(data)
-    .enter()
-    .append("rect")
-    .attrs({
-      x: function (d, i) {
-        return (d.trial_number - 1) * gridSize + trial_numberPadding/2;
-      },
-      y: function (d) { return (d.uid) * gridSize + 5; },
-      //rx: 4,
-      //ry: 4,
-      width: gridSize,
-      height: gridSize,
-      fill: function (d) { return colorScale(d.trial_result)},
-      "class": function (d) { return "bordered trialRes trialValue" + d.trial_number + " uidValue" + d.uid + " trialRes" + d.trial_result}
-    })
-    .on("click", highlightTrial);;
-
-    function highlightTrial(d) {
-        if (!clickToggle) {
-            // var className = "trialValue" + d.trial_number;
-            d3.selectAll(".trialRes").transition().style("fill-opacity", function (elem) {
-                if (elem.trial_number !== d.trial_number && elem.uid !== d.uid) return 0.2;
-            })
-        } else {
-            d3.selectAll(".trialRes").transition().style("fill-opacity", 1);
-        }
-        clickToggle = !clickToggle;
-    }
-
-  // chart color transition
-  // chart.transition().duration(1000)
-  //   .style("fill", function (d) {
-  //     if (d.trial_number != lasttrial_number) {
-  //       return colorScale(d.trial_result);
-  //     } else {
-  //       return "#e4e4e4";
-  //     }
-  //   });
-
-    // title
-  chart.append("title").text(function(d) { return "Trial " + d.trial_number + "\nStimulus amount: " + d.stimulus_amount ; });
-}
 
 
 </script>
-</body>
+
+
+<footer>
+  <script>
+// window.GLOB = {}
+// GLOB.fixPhrases = (function(){
+//   var req, url;
+
+//   url = '/hot_phrases';
+
+//   req = $.ajax({
+//     url: url
+//   });
+
+//   req.done(function(d) {
+//     window.nodes = [];
+//     $(d.data.phrases).each(function() {
+//       return nodes.push({
+//         name: this.phrase,
+//         group: this.rate
+//       });
+//     });
+//     $('.row text').each(function(i) {
+//       return $(this).text(nodes[i].name);
+//     });
+//     return $('.column text').each(function(i) {
+//       return $(this).text(nodes[i].name);
+//     });
+//   });
+// })
+
+// setTimeout(2000, GLOB.fixPhrases())
+
+
+
+  </script>
+</footer>
