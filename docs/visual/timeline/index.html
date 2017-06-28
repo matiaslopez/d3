@@ -26,7 +26,7 @@
         height: 1400px;
       }
       .chartRegular {
-        height: 500px;
+        height: 700px;
       }
       .node rect {
         fill-opacity: .9;
@@ -75,7 +75,8 @@
     }
 
     var a = getUrlVars()
-    var dataset = "childrenReduced.json"
+    // var dataset = "childrenReduced.json"
+    var dataset = "children4samples.json"
     if (a.dataset !== undefined){
       d3.selectAll("#" + a.dataset.split(".")[0]).style("color", "#6666EE");
       dataset = a.dataset
@@ -95,7 +96,7 @@
           };
       // d3.json("childrenReduced.json", function(error, json) {
       d3.json(dataset, function(error, json) {
-        if (json.nodes.length > 150) {
+        if (json.subjects > 50) {
           d3.selectAll("#chart").classed("chartRegular", false).classed("chartHuge", true);
         }
         var chart = d3.select("#chart").append("svg").chart("Sankey.Path");

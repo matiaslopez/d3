@@ -100,7 +100,7 @@ if True:
         links.append({"source": vals["node_value"][2],
                     "target": letters[vals["values"][2]]["node_value"][1], "value": 0.08})
 
-    res = {"nodes": nodes, "links": links}
+    res = {"nodes": nodes, "links": links, "subjects": len(children)}
     print json.dumps(res)
 
 if True:
@@ -155,5 +155,5 @@ if True:
         links.append({"source": vals["node_value"][2],
                     "target": letters[vals["values"][2]]["node_value"][1], "value": 0.08})
 
-    res = {"nodes": nodes, "links": links}
+    res = {"nodes": nodes, "links": links, "subjects": len(children)}
     print json.dumps(res)
