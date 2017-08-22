@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+      <script src="d3.v4.min.js"></script>
+      <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="viz"></div>
+    <script type="text/javascript">
+         var realData = [{"dev_col": "green", "node_value": 0, "temp_col": "green", "y": 70, "x": 60, "tooltip": "Sin intervención", "percent": 0.295, "house_col": "green", "size": 18}, {"dev_col": "green", "node_value": 3, "temp_col": "green", "y": 70, "x": 120, "tooltip": "Estimulación hogar", "percent": 0.131, "house_col": "yellow", "size": 8}, {"dev_col": "green", "node_value": 6, "temp_col": "green", "y": 70, "x": 180, "tooltip": "Clínica padres", "percent": 0.049, "house_col": "red", "size": 3}, {"dev_col": "green", "node_value": 1, "temp_col": "yellow", "y": 70, "x": 250, "tooltip": "Pautas de crianza", "percent": 0.016, "house_col": "green", "size": 1}, {"dev_col": "green", "node_value": 4, "temp_col": "yellow", "y": 70, "x": 310, "tooltip": "Pautas de crianza", "percent": 0.0, "house_col": "yellow", "size": 0}, {"dev_col": "green", "node_value": 7, "temp_col": "yellow", "y": 70, "x": 370, "tooltip": "Pautas de crianza<br>Clínica padres", "percent": 0.0, "house_col": "red", "size": 0}, {"dev_col": "green", "node_value": 2, "temp_col": "red", "y": 70, "x": 440, "tooltip": "Pautas de crianza", "percent": 0.0, "house_col": "green", "size": 0}, {"dev_col": "green", "node_value": 5, "temp_col": "red", "y": 70, "x": 500, "tooltip": "Pautas de crianza<br>Estimulación hogar", "percent": 0.0, "house_col": "yellow", "size": 0}, {"dev_col": "green", "node_value": 8, "temp_col": "red", "y": 70, "x": 560, "tooltip": "Pautas de crianza", "percent": 0.0, "house_col": "red", "size": 0}, {"dev_col": "yellow", "node_value": 9, "temp_col": "green", "y": 140, "x": 60, "tooltip": "Clínica niños", "percent": 0.525, "house_col": "green", "size": 32}, {"dev_col": "yellow", "node_value": 12, "temp_col": "green", "y": 140, "x": 120, "tooltip": "Clínica niños<br>Estimulación hogar", "percent": 0.393, "house_col": "yellow", "size": 24}, {"dev_col": "yellow", "node_value": 15, "temp_col": "green", "y": 140, "x": 180, "tooltip": "Clínica niños<br>Estimulación hogar", "percent": 0.246, "house_col": "red", "size": 15}, {"dev_col": "yellow", "node_value": 10, "temp_col": "yellow", "y": 140, "x": 250, "tooltip": "Clínica niños<br>Pautas de crianza", "percent": 0.115, "house_col": "green", "size": 7}, {"dev_col": "yellow", "node_value": 13, "temp_col": "yellow", "y": 140, "x": 310, "tooltip": "Clínica niños<br>Pautas de crianza<br>Estimulación hogar", "percent": 0.0, "house_col": "yellow", "size": 0}, {"dev_col": "yellow", "node_value": 16, "temp_col": "yellow", "y": 140, "x": 370, "tooltip": "Clínica niños<br>Pautas de crianza<br>Estimulación hogar", "percent": 0.066, "house_col": "red", "size": 4}, {"dev_col": "yellow", "node_value": 11, "temp_col": "red", "y": 140, "x": 440, "tooltip": "Clínica niños<br>Pautas de crianza", "percent": 0.0, "house_col": "green", "size": 0}, {"dev_col": "yellow", "node_value": 14, "temp_col": "red", "y": 140, "x": 500, "tooltip": "Clínica niños<br>Pautas de crianza<br>Estimulación hogar", "percent": 0.0, "house_col": "yellow", "size": 0}, {"dev_col": "yellow", "node_value": 17, "temp_col": "red", "y": 140, "x": 560, "tooltip": "Clínica niños<br>Pautas de crianza<br>Estimulación hogar", "percent": 0.0, "house_col": "red", "size": 0}, {"dev_col": "red", "node_value": 18, "temp_col": "green", "y": 210, "x": 60, "tooltip": "Clínica niños", "percent": 0.803, "house_col": "green", "size": 49}, {"dev_col": "red", "node_value": 21, "temp_col": "green", "y": 210, "x": 120, "tooltip": "Clínica niños<br>Estimulación hogar", "percent": 1.0, "house_col": "yellow", "size": 61}, {"dev_col": "red", "node_value": 24, "temp_col": "green", "y": 210, "x": 180, "tooltip": "Clínica niños<br>Estimulación hogar", "percent": 0.541, "house_col": "red", "size": 33}, {"dev_col": "red", "node_value": 19, "temp_col": "yellow", "y": 210, "x": 250, "tooltip": "Clínica niños<br>Pautas de crianza", "percent": 0.131, "house_col": "green", "size": 8}, {"dev_col": "red", "node_value": 22, "temp_col": "yellow", "y": 210, "x": 310, "tooltip": "Clínica niños<br>Pautas de crianza<br>Estimulación hogar", "percent": 0.115, "house_col": "yellow", "size": 7}, {"dev_col": "red", "node_value": 25, "temp_col": "yellow", "y": 210, "x": 370, "tooltip": "Clínica niños<br>Clínica padres", "percent": 0.066, "house_col": "red", "size": 4}, {"dev_col": "red", "node_value": 20, "temp_col": "red", "y": 210, "x": 440, "tooltip": "Clínica niños<br>Pautas de crianza", "percent": 0.0, "house_col": "green", "size": 0}, {"dev_col": "red", "node_value": 23, "temp_col": "red", "y": 210, "x": 500, "tooltip": "Clínica niños<br>Pautas de crianza<br>Estimulación hogar", "percent": 0.0, "house_col": "yellow", "size": 0}, {"dev_col": "red", "node_value": 26, "temp_col": "red", "y": 210, "x": 560, "tooltip": "Clínica niños<br>Clínica padres", "percent": 0.0, "house_col": "red", "size": 0}];
+
+
+        var tooltip = d3.select("body")
+            .append("div")
+            .attr("class", "tooltip")
+            .style("position", "absolute")
+            .style("z-index", "10")
+            .style("visibility", "hidden")
+            .text("a simple tooltip");
+
+        var svgContainer = d3.select("body").append("svg")
+                                            .attr("width", 800)
+                                            .attr("height", 700);
+
+        var myGroups = svgContainer.selectAll('g').data(realData);
+
+        // enter selection
+        var myGroupsEnter = myGroups.enter().append("g");
+        var myGroupsEnterFigures = myGroupsEnter.append("g");
+
+        myGroupsEnterFigures.append("circle")
+                                .attr("r", function (d) { return 35; })
+                                // .on("mouseover", function(d){return tooltip.style("visibility", "visible").text("House value:" + d.house_col);})
+                               .style("fill", function(d) { return d.house_col; });
+        myGroupsEnterFigures.append("circle")
+                               .attr("r", function (d) { return 25; })
+                                // .on("mouseover", function(d){return tooltip.style("visibility", "visible").text("Temperament value:" + d.temp_col);})
+                               .style("fill", function(d) { return d.temp_col; });
+        myGroupsEnterFigures.append("circle")
+                               .attr("r", function (d) { return 15; })
+                                // .on("mouseover", function(d){return tooltip.style("visibility", "visible").text("Developmental value:" + d.dev_col);})
+                               .style("fill", function(d) { return d.dev_col; });
+        myGroupsEnterFigures.selectAll("circle").attr("cx", function (d) { return 1.2 * d.x + 25; })
+                               .attr("cy", function (d) { return 1.1 * d.y + 50; })
+                               .style("stroke", "black")    // set the line colour
+                               .style("stroke-opacity", .2) // set the stroke opacity
+                                .on("mouseover", function(d){return tooltip.style("visibility", "visible").html(d.tooltip);})
+                                .on("mousemove", function(){return tooltip.style("top",
+                                    (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");})
+                                .on("mouseout", function(){return tooltip.style("visibility", "hidden");});
+
+        myGroupsEnterFigures.style("opacity", function (d) { return 0.5+d.percent*1/2; }); // set the stroke opacity
+
+        myGroupsEnter.append("text")
+            .attr("x", function (d) { return 1.2 * d.x + 25; })
+            .attr("y", function (d) { return 1.1 * d.y + 50; })
+            .attr("text-anchor", "middle")
+            .attr("dy", ".35em")
+            .style("opacity", 1) // set the stroke opacity
+            .text(function(d){return d.size});
+
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style> /* set the CSS */
+
+.labelTxt { font-size: 18px; font-weight: bold; }
+</style>
+<body>
+<div  id='chart' style="text-align:center;"></div>
+
+<!-- load the d3.js library -->
+<script src="d3.v4.min.js"></script>
+<script>
+
+// set the dimensions and margins of the graph
+var margin = {top: 20, right: 20, bottom: 30, left: 50},
+    width = 800 - margin.left - margin.right,
+    height = 600 - margin.top - margin.bottom,
+    box_side = 100;
+
+
+// set the ranges
+var x = d3.scaleLinear().range([0, width]);
+var y = d3.scaleLinear().range([0, height]);
+
+
+// append the svg obgect to the body of the page
+// appends a 'group' element to 'svg'
+// moves the 'group' element to the top left margin
+var svg = d3.select("#chart").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform",
+          "translate(" + margin.left + "," + margin.top + ")");
+
+// Get the data
+d3.csv("data/boxes.csv", function(error, data) {
+  if (error) throw error;
+
+  // format the data
+  // grid_size =  Math.min(height/4, width/5)
+  data.forEach(function(d) {
+      d.x = d.x * box_side;
+      d.y = d.y * box_side;
+  });
+
+
+  // Scale the range of the data
+  x.domain([box_side, d3.max(data, function(d) { return d.x + box_side; })]);
+  y.domain([box_side, d3.max(data, function(d) { return d.y + box_side; })]);
+
+  // Add the valueline path.
+  var boxes = svg.selectAll("rect")
+                .data(data)
+                .enter()
+                .append("rect") // attach a rectangle
+                .attr("x", function(d) { return x(d.x); }) // position the left of the rectangle
+                .attr("y", function(d) { return y(d.y); }) // position the top of the rectangle
+                .attr("height", box_side) // set the height
+                .attr("width", box_side)
+                .attr("rx", 10) // set the x corner curve radius
+                .attr("ry", 10);
+  var box_label = svg.selectAll("text")
+                .data(data)
+                .enter()
+                .append("text") // attach a rectangle
+                .attr("class", "labelTxt")
+                .style("fill", "white") // fill the text with the colour black
+                .attr("x", function(d) { return x(d.x) + box_side/2; }) // position the left of the rectangle
+                .attr("y", function(d) { return y(d.y) + box_side/2; }) // position the top of the rectangle
+                .attr("dy", ".35em") // set offset y position
+                .attr("text-anchor", "middle") // set anchor y justification
+                .text(function(d) { return d.label; });
+
+});
+
+</script>
+</body>
