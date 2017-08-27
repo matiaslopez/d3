@@ -13,12 +13,12 @@
 }
 
 </style>
-<svg width="1000" height="800"></svg>
+<svg width="800" height="600"></svg>
 <script src="d3.v4.min.js"></script>
 <script>
 
 function distanceVal(d) {
-  return Math.min(250, Math.max(d**3/13200 - d ** 2/30 - 261 * d / 44 + 400, 50));
+  return Math.min(120, Math.max(d**3/13200 - d ** 2/30 - 261 * d / 44 + 400, 50));
 }
 
 var svg = d3.select("svg"),
@@ -27,10 +27,10 @@ var svg = d3.select("svg"),
 
 var color = d3.scaleOrdinal(d3.schemeCategory20);
 
-var attractForce = d3.forceManyBody().strength(200).distanceMax(800)
-                     .distanceMin(120);
-var repelForce = d3.forceManyBody().strength(-100).distanceMax(60)
-                   .distanceMin(10);
+var attractForce = d3.forceManyBody().strength(150).distanceMax(600)
+                     .distanceMin(90);
+var repelForce = d3.forceManyBody().strength(-75).distanceMax(45)
+                   .distanceMin(7);
 
 // var simulation = d3.forceSimulation()
 //     // .force("link", d3.forceLink().id(function(d) { return d.id; }))
@@ -135,5 +135,6 @@ function dragended(d) {
   d.fx = null;
   d.fy = null;
 }
+
 
 </script>

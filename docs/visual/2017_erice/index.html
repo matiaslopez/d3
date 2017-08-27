@@ -62,7 +62,7 @@
 								<li>&nbsp;</li>
 								<li>Video games</li>
 								<li>&nbsp;</li>
-								<li>XXXX</li>
+								<li>Interdisciplinary groups</li>
 							</ul>
 						</div>
 					</script>
@@ -121,28 +121,41 @@ with open('schedules-rpp.csv', 'rb') as csvfile:
                 print "Old event", subject, start_date
 
 					</code></small></pre>
-					<p>Add experiment session slot to the web page.</p>
+					<p>Add experiment sessions offer to web page.</p>
 				</section>
 				<section id="motivation2" data-markdown>
 					<script type="text/template">
-						## Motivation
+						### Other needs of Computer Scientists
 
-						Experience:
-						Analysis-Synthesis + Join Excels + Survey Digitalization
-						http://sdaps.org/
+						- Printers
+						- Join lots of excel sheets
+						- Code tests
 					</script>
 				</section>
 
+				<section data-markdown>
+					<script type="text/template">
+						### Interdisciplinary dialog with Sebastián & co.
+
+						- What is inside the structure of cognitive test?
+						- How can we improve evaluation of cognitive abilities?
+						- Design and validate new intervention protocols
+					</script>
+				</section>
 
 				<section id="explain-algorithm">
 					<section>
 						<h2>Algorithm</h2>
-							<div style="width: 50%; float:left">
-								<img data-src="imgs/anillos.png" >
-							</div>
-							<div style="width: 50%; float:right">
 								<ul>
-									<li>Input: A child's scores</li>
+									<li>Input: Three child scores<br>
+									<small>
+										<ul>
+											<li>Cognitive</li>
+											<li>Temperament</li>
+											<li>House</li>
+										</ul>
+									</small>
+									</li>
 									<li>Output: Combination of actions
 										<small>
 										<ul>
@@ -155,13 +168,12 @@ with open('schedules-rpp.csv', 'rb') as csvfile:
 										</small>
 									</li>
 								</ul>
-							</div>
 					</section>
 					<section>
 						<h2>Algorithm</h2>
-							<div style="width: 50%; float:left">
+							<!-- <div style="width: 50%; float:left"> -->
 								<img data-src="imgs/anillos.png" >
-							</div>
+<!-- 							</div>
 							<div style="width: 45%; float:right">
 								<small>
 								<ol>
@@ -178,7 +190,7 @@ with open('schedules-rpp.csv', 'rb') as csvfile:
 									<li>Counseling for children and parents or caregivers</li>
 								</ol>
 								</small>
-							</div>
+							</div> -->
 					</section>
 					<section>
 						<h2>Algorithm</h2>
@@ -228,17 +240,42 @@ with open('schedules-rpp.csv', 'rb') as csvfile:
 									<li>Counseling for parents or caregivers</li>
 									<li>Guidelines for child raising</li>
 									<li>Guidelines for child raising; Counseling for parents or caregivers</li>
-									<li>Guidelines for child raising and stimulus at home;  </li>
+									<li>Guidelines for child raising; Stimulus at home;  </li>
 									<li>Counseling for children</li>
-									<li>Counseling for children and stimulus at home</li>
-									<li>Counseling for children and Guidelines for child raising</li>
-									<li>Counseling for children; Guidelines for child raising and stimulus at home</li>
+									<li>Counseling for children; Stimulus at home</li>
+									<li>Counseling for children; Guidelines for child raising</li>
+									<li>Counseling for children; Guidelines for child raising; Stimulus at home</li>
 									<li>Counseling for children and parents or caregivers</li>
 								</ol>
 								</small>
 							</div>
 					</section>
 				</section>
+
+				<section id="">
+					<iframe data-src="../circles_v2/" width="800" height="600" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:3px solid #666; margin-bottom:5px; max-width: 100%; background: white" allowfullscreen> </iframe><br>
+					<small>Circles: development (inner), temperament (middle), house (outer)</small>
+				</section>
+
+				<section id="">
+					<h3>From static to dinamic</h3>
+
+					<ul style="list-style: none; padding:0; margin:0">
+						<li>What can change?</li>
+						<li>Can we improve scores?</li>
+						<li>What things can change? How?</li>
+					</ul><br>
+					<span class="fragment">
+						<p>First approach: each child can only change one score at a time.</p>
+					</span>
+				</section>
+
+				<section id="">
+					<iframe data-src="../graph.html" width="800" height="600" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:3px solid #666; margin-bottom:5px; max-width: 100%; background: white" allowfullscreen onfocus="document.getElementById('foo').focus();"> </iframe><br>
+					<small>Circles: development (inner), temperament (middle), house (outer)</small>
+				</section>
+
+
 				<section id="georef">
 					<iframe src="../map_circle_tooltip.html" width="800" height="600" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:3px solid #666; margin-bottom:5px; max-width: 100%; background: white" allowfullscreen> </iframe>
 				</section>
@@ -294,6 +331,14 @@ with open('schedules-rpp.csv', 'rb') as csvfile:
 					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
 				]
 			});
+
+			// Reveal.configure({
+			//   keyboard: {
+			//     13: 'next', // go to the next slide when the ENTER key is pressed
+			//     27: function() {}, // do something custom when ESC is pressed
+			//     32: null // don't do anything when SPACE is pressed (i.e. disable a reveal.js default binding)
+			//   }
+			// });
 		</script>
 	</body>
 </html>

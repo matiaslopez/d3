@@ -41,8 +41,8 @@
                                .attr("r", function (d) { return 15; })
                                 // .on("mouseover", function(d){return tooltip.style("visibility", "visible").text("Developmental value:" + d.dev_col);})
                                .style("fill", function(d) { return d.dev_col; });
-        myGroupsEnterFigures.selectAll("circle").attr("cx", function (d) { return 1.2 * d.x; })
-                               .attr("cy", function (d) { return 1.1 * d.y + 250; })
+        myGroupsEnterFigures.selectAll("circle").attr("cx", function (d) { return 1.2 * d.x + 25; })
+                               .attr("cy", function (d) { return 1.1 * d.y + 50; })
                                .style("stroke", "black")    // set the line colour
                                .style("stroke-opacity", .2) // set the stroke opacity
                                 .on("mouseover", function(d){return tooltip.style("visibility", "visible").html(d.tooltip);})
@@ -53,8 +53,8 @@
         myGroupsEnterFigures.style("opacity", function (d) { return 0.25+d.percent*3/4; }); // set the stroke opacity
 
         myGroupsEnter.append("text")
-            .attr("x", function (d) { return 1.2 * d.x; })
-            .attr("y", function (d) { return 1.1 * d.y + 250; })
+            .attr("x", function (d) { return 1.2 * d.x + 25; })
+            .attr("y", function (d) { return 1.1 * d.y + 50; })
             .attr("text-anchor", "middle")
             .attr("dy", ".35em")
             .style("opacity", 1) // set the stroke opacity
