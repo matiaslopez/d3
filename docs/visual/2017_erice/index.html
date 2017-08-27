@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+		<title>Computer and developmental science dialogs</title>
+
+		<meta name="description" content="Computer and developmental science dialogs on scaling experimental interventions.">
+		<meta name="author" content="Matías López">
+
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/ownstyle.css">
+		<link rel="stylesheet" href="css/theme/black.css" id="theme">
+
+		<!-- Theme used for syntax highlighting of code -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+		<style>
+			#scale-div{
+			    zoom: 0.5;
+			    -moz-transform: scale(0.5);
+			}
+			tr.bottom td {
+			  border-bottom: thin solid black;
+			}
+		</style>
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+	<body>
+		<div class="reveal">
+			<div class="slides">
+				<section  id="initial">
+					<h4>Computer and developmental science dialogs on scaling experimental interventions</h4>
+					<p>&nbsp;</p>
+					<p><small><i>Matías Lopez-Rosenfeld</i>, Soledad Segretin, Sebastián Lipina</small></p>
+					<p><small>Unidade de Neurobiología Aplicada - CONICET - Argentina</small>
+					<p><small><a href="mailto:matiaslopez@gmail.com">matiaslopez@gmail.com</a></small>
+					</p>
+				</section>
+				<section id="introduction" data-markdown>
+					<script type="text/template">
+						<div style="width: 60%; float:left">
+							<img data-src="imgs/argentina.png"  class="plain" style="background:none">
+						</div>
+						<div style="width: 40%; float:right">
+							<ul style="list-style: none; padding:0; margin:0">
+								<li>Computer Scientist</li>
+								<li>&nbsp;</li>
+								<li>Video games</li>
+								<li>&nbsp;</li>
+								<li>XXXX</li>
+							</ul>
+						</div>
+					</script>
+				</section>
+
+				<section id="automation">
+						<h2>Solving tasks</h2>
+						<img data-src="imgs/automation.png" ></br>
+						<small><a href="https://xkcd.com/1319/">https://xkcd.com/1319/</a></small>
+				</section>
+
+
+				<section id="motivation">
+						<h3>Motivation</h3>
+						<div style="width: 40%; float:left">
+							<img data-src="imgs/analysis-synthesis.png"  class="plain" style="background:none">
+						</div>
+						<div style="width: 55%; float:right">
+							A research assistant code the answers:<br>
+							<ul>
+								<li>Boring task</li>
+								<li>Possible mistakes</li>
+							</ul><br><br>
+							<span class="fragment">
+							Possible solution:
+							<img data-src="imgs/sdaps.png"  class="plain" style="background:none">
+							</br><small><a href="http://sdaps.org/">http://sdaps.org/</a></small>
+							</span>
+						</div>
+				</section>
+				<section>
+					<h3>Experimetrix</h3>
+					<pre><small>
+					<code class="hljs" data-trim contenteditable>
+browser = Browser()
+
+url = "https://experimetrix2.com/berkeley/"
+browser.visit(url)
+browser.click_link_by_href("/SPExpAdmin/Defaultq.asp")
+
+button = browser.fill('txtLogon',"5")
+button = browser.fill('txtPassword',"******")
+
+button = browser.find_by_value('LogOn')
+# Interact with elements
+button.click()
+browser.click_link_by_href("/SPExpAdmin/AddToSchedule.asp")
+
+line_num = 0
+with open('schedules-rpp.csv', 'rb') as csvfile:
+    reader = csv.reader(csvfile, delimiter=',', quotechar='|')
+    for row in reader:
+        if line_num:
+            (subject,start_date,start_time,end_date,end_time,all_day_event,description,location,private) = row
+            if parser.parse(start_date) <  datetime.now():
+                print "Old event", subject, start_date
+
+					</code></small></pre>
+					<p>Add experiment session slot to the web page.</p>
+				</section>
+				<section id="motivation2" data-markdown>
+					<script type="text/template">
+						## Motivation
+
+						Experience:
+						Analysis-Synthesis + Join Excels + Survey Digitalization
+						http://sdaps.org/
+					</script>
+				</section>
+
+
+				<section id="explain-algorithm">
+					<section>
+						<h2>Algorithm</h2>
+							<div style="width: 50%; float:left">
+								<img data-src="imgs/anillos.png" >
+							</div>
+							<div style="width: 50%; float:right">
+								<ul>
+									<li>Input: A child's scores</li>
+									<li>Output: Combination of actions
+										<small>
+										<ul>
+											<li>No intervention</li>
+											<li>Stimulus at home</li>
+											<li>Counseling for parents or caregivers</li>
+											<li>Guidelines for child raising</li>
+											<li>Counseling for children</li>
+										</ul>
+										</small>
+									</li>
+								</ul>
+							</div>
+					</section>
+					<section>
+						<h2>Algorithm</h2>
+							<div style="width: 50%; float:left">
+								<img data-src="imgs/anillos.png" >
+							</div>
+							<div style="width: 45%; float:right">
+								<small>
+								<ol>
+									<li>No intervention</li>
+									<li>Stimulus at home</li>
+									<li>Counseling for parents or caregivers</li>
+									<li>Guidelines for child raising</li>
+									<li>Guidelines for child raising; Counseling for parents or caregivers</li>
+									<li>Guidelines for child raising and stimulus at home;  </li>
+									<li>Counseling for children</li>
+									<li>Counseling for children and stimulus at home</li>
+									<li>Counseling for children and Guidelines for child raising</li>
+									<li>Counseling for children; Guidelines for child raising and stimulus at home</li>
+									<li>Counseling for children and parents or caregivers</li>
+								</ol>
+								</small>
+							</div>
+					</section>
+					<section>
+						<h2>Algorithm</h2>
+							<div id="scale-div" style="width:50%; float:left;">
+								<small>
+								<table>
+									<tr>
+										<th>Dev</th><th>Tem</th><th>Hom</th><th>Intervention</th>
+									</tr>
+<tr><td bgcolor="green"></td><td bgcolor="green"></td><td bgcolor="green"></td><td style="font-size:100%" align="center">1</td></tr>
+<tr><td bgcolor="green"></td><td bgcolor="green"></td><td bgcolor="yellow"></td><td style="font-size:100%" align="center">2</td></tr>
+<tr><td bgcolor="green"></td><td bgcolor="green"></td><td bgcolor="red"></td><td style="font-size:100%" align="center">3</td></tr>
+<tr><td bgcolor="green"></td><td bgcolor="yellow"></td><td bgcolor="green"></td><td style="font-size:100%" align="center">4</td></tr>
+<tr><td bgcolor="green"></td><td bgcolor="yellow"></td><td bgcolor="yellow"></td><td style="font-size:100%" align="center">4</td></tr>
+<tr><td bgcolor="green"></td><td bgcolor="yellow"></td><td bgcolor="red"></td><td style="font-size:100%" align="center">5</td></tr>
+<tr><td bgcolor="green"></td><td bgcolor="red"></td><td bgcolor="green"></td><td style="font-size:100%" align="center">4</td></tr>
+<tr><td bgcolor="green"></td><td bgcolor="red"></td><td bgcolor="yellow"></td><td style="font-size:100%" align="center">6</td></tr>
+<tr><td bgcolor="green"></td><td bgcolor="red"></td><td bgcolor="red"></td><td style="font-size:100%" align="center">4</td></tr>
+
+<tr><td bgcolor="yellow"></td><td bgcolor="green"></td><td bgcolor="green"></td><td style="font-size:100%" align="center">7</td></tr>
+<tr><td bgcolor="yellow"></td><td bgcolor="green"></td><td bgcolor="yellow"></td><td style="font-size:100%" align="center">8</td></tr>
+<tr><td bgcolor="yellow"></td><td bgcolor="green"></td><td bgcolor="red"></td><td style="font-size:100%" align="center">8</td></tr>
+<tr><td bgcolor="yellow"></td><td bgcolor="yellow"></td><td bgcolor="green"></td><td style="font-size:100%" align="center">9</td></tr>
+<tr><td bgcolor="yellow"></td><td bgcolor="yellow"></td><td bgcolor="yellow"></td><td style="font-size:100%" align="center">10</td></tr>
+<tr><td bgcolor="yellow"></td><td bgcolor="yellow"></td><td bgcolor="red"></td><td style="font-size:100%" align="center">10</td></tr>
+<tr><td bgcolor="yellow"></td><td bgcolor="red"></td><td bgcolor="green"></td><td style="font-size:100%" align="center">9</td></tr>
+<tr><td bgcolor="yellow"></td><td bgcolor="red"></td><td bgcolor="yellow"></td><td style="font-size:100%" align="center">10</td></tr>
+<tr><td bgcolor="yellow"></td><td bgcolor="red"></td><td bgcolor="red"></td><td style="font-size:100%" align="center">10</td></tr>
+
+<tr><td bgcolor="red"></td><td bgcolor="green"></td><td bgcolor="green"></td><td style="font-size:100%" align="center">7</td></tr>
+<tr><td bgcolor="red"></td><td bgcolor="green"></td><td bgcolor="yellow"></td><td style="font-size:100%" align="center">8</td></tr>
+<tr><td bgcolor="red"></td><td bgcolor="green"></td><td bgcolor="red"></td><td style="font-size:100%" align="center">8</td></tr>
+<tr><td bgcolor="red"></td><td bgcolor="yellow"></td><td bgcolor="green"></td><td style="font-size:100%" align="center">9</td></tr>
+<tr><td bgcolor="red"></td><td bgcolor="yellow"></td><td bgcolor="yellow"></td><td style="font-size:100%" align="center">10</td></tr>
+<tr><td bgcolor="red"></td><td bgcolor="yellow"></td><td bgcolor="red"></td><td style="font-size:100%" align="center">11</td></tr>
+<tr><td bgcolor="red"></td><td bgcolor="red"></td><td bgcolor="green"></td><td style="font-size:100%" align="center">9</td></tr>
+<tr><td bgcolor="red"></td><td bgcolor="red"></td><td bgcolor="yellow"></td><td style="font-size:100%" align="center">10</td></tr>
+<tr><td bgcolor="red"></td><td bgcolor="red"></td><td bgcolor="red"></td><td style="font-size:100%" align="center">11</td></tr>
+								</table>
+								</small>
+							</div>
+							<div style="width: 45%; float:right">
+								<small>
+								<ol>
+									<li>No intervention</li>
+									<li>Stimulus at home</li>
+									<li>Counseling for parents or caregivers</li>
+									<li>Guidelines for child raising</li>
+									<li>Guidelines for child raising; Counseling for parents or caregivers</li>
+									<li>Guidelines for child raising and stimulus at home;  </li>
+									<li>Counseling for children</li>
+									<li>Counseling for children and stimulus at home</li>
+									<li>Counseling for children and Guidelines for child raising</li>
+									<li>Counseling for children; Guidelines for child raising and stimulus at home</li>
+									<li>Counseling for children and parents or caregivers</li>
+								</ol>
+								</small>
+							</div>
+					</section>
+				</section>
+				<section id="georef">
+					<iframe src="../map_circle_tooltip.html" width="800" height="600" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:3px solid #666; margin-bottom:5px; max-width: 100%; background: white" allowfullscreen> </iframe>
+				</section>
+
+				<section id="mdp">
+					<h3>Evolution of scores</h3>
+
+					<p class="fragment fade-in">How this scores change over time?</p>
+					<p class="fragment fade-in">Why the scores change?</p>
+					<p class="fragment fade-in">What are the actions a child could take?</p>
+				</section>
+				<section>
+					<h3>Child model</h3>
+					<p>Discrete time</p>
+					<p>One action</p>
+					<p>What is the "value" of a child? Is it correct?</p>
+				</section>
+
+
+
+				<section id="simulations">simulations</section>
+				<section id="questions">questions</section>
+				<section id="">
+					<iframe data-src="http://localhost:8080/visual/circles.html" width="800" height="600" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:3px solid #666; margin-bottom:5px; max-width: 100%; background: white" allowfullscreen> </iframe>
+				</section>
+			</div>
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+
+		<script>
+			// More info about config & dependencies:
+			// - https://github.com/hakimel/reveal.js#configuration
+			// - https://github.com/hakimel/reveal.js#dependencies
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+				help: true,
+				// Enable keyboard shortcuts for navigation
+				keyboard: true,
+
+				// Enable the slide overview mode
+				overview: true,
+
+				transition: 'slide', // none/fade/slide/convex/concave/zoom
+				dependencies: [
+					{ src: 'plugin/markdown/marked.js' },
+					{ src: 'plugin/markdown/markdown.js' },
+					{ src: 'plugin/notes/notes.js', async: true },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
+				]
+			});
+		</script>
+	</body>
+</html>
+
+
