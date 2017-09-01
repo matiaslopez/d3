@@ -65,7 +65,7 @@ function getUrlVars()
 }
 
 var a = getUrlVars()
-var dataset = "data-timeserie.json"
+var dataset = "only-cog-visualization.json"
 if (a.dataset !== undefined){
   d3.selectAll("#link-cognitive").style("color", "#6666EE");
   dataset = a.dataset
@@ -93,10 +93,10 @@ var svg = d3.select("svg"),
 
 var color = d3.scaleOrdinal(d3.schemeCategory20);
 
-var attractForce = d3.forceManyBody().strength(150).distanceMax(600)
-                     .distanceMin(60);
-var repelForce = d3.forceManyBody().strength(-100).distanceMax(60)
-                   .distanceMin(10);
+var attractForce = d3.forceManyBody().strength(200).distanceMax(600)
+                     .distanceMin(400);
+var repelForce = d3.forceManyBody().strength(-100).distanceMax(500)
+                   .distanceMin(300);
 
 
 function updateChart(current_algorithm) {
@@ -109,8 +109,9 @@ function updateChart(current_algorithm) {
    d3.select("svg").selectAll("g").remove();
 
   var simulation = d3.forceSimulation()
-      .force("link", d3.forceLink().id(function(d) { return d.id; }).distance(function (d) {return distanceVal(d.value);}))
-      .force("charge", d3.forceManyBody().strength(-200))
+      .force("link", d3.forceLink().id(function(d) { return d.id; })
+        .distance(function (d) {return distanceVal(d.value)*2;}))
+      .force("charge", d3.forceManyBody().strength(-400))
       .force("center", d3.forceCenter(width / 2, height / 2));
 
     var link = svg.append("g")
@@ -130,14 +131,14 @@ function updateChart(current_algorithm) {
             .on("start", dragstarted)
             .on("drag", dragged)
             .on("end", dragended))
+    // node_group.append("circle")
+    //     .attr("r", 35)
+    //     .attr("fill", function(d) { return d.house_col; });
+    // node_group.append("circle")
+    //     .attr("r", 30)
+    //     .attr("fill", "rgba(0,255,0,0.5)");
     node_group.append("circle")
-        .attr("r", 30)
-        .attr("fill", function(d) { return d.house_col; });
-    node_group.append("circle")
-        .attr("r", 20)
-        .attr("fill", function(d) { return d.temp_col; });
-    node_group.append("circle")
-        .attr("r", 10)
+        .attr("r", 40)
         .attr("fill", function(d) { return d.dev_col; });
 
     node_group.style("opacity", function (d) { return opacity(d.percent[0]); }); // set the stroke opacity
@@ -151,7 +152,7 @@ function updateChart(current_algorithm) {
               .attr("dy", ".35em")
               .attr("font-weight", "bold")
               .style("text-anchor", "middle")
-              .style("fill", function(d){return ((d.dev_col=="green") ? "#eee" : "#555")})
+              .style("fill", function(d){return ((d.dev_col=="yellow") ? "#555": "#eee")})
               .style("font-family", "Arial")
               .style("font-size", 13)
               .text(function(d){return d.size[0]});
