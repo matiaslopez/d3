@@ -47,11 +47,13 @@
 				<section  id="initial">
 					<h4>Computer and developmental science dialogs on scaling experimental interventions</h4>
 					<p>&nbsp;</p>
-					<p><small><i>Matías Lopez-Rosenfeld</i>, Soledad Segretin, Sebastián Lipina</small></p>
-					<p><small>Unidad de Neurobiología Aplicada - CONICET - Argentina</small>
-					<p><small>Universidad de Buenos Aires</small>
-					<p><small><a href="mailto:matiaslopez@gmail.com">matiaslopez@gmail.com</a></small>
-					</p>
+					<div style="text-align: center;">
+						<div id="scale-div" style="width:90%; margin: 0 auto;">
+						<p><i>Matías Lopez-Rosenfeld</i><sup>1,2</sup>, Soledad Segretin<sup>1</sup>, Sebastián Lipina<sup>1</sup></p>
+						<p><small>1-Unidad de Neurobiología Aplicada - CONICET - Argentina<br>2-Universidad de Buenos Aires</small></p>
+						<p><a href="mailto:matiaslopez@gmail.com">matiaslopez@gmail.com</a></p>
+						</div>
+					</div>
 				</section>
 				<section id="antonio" data-markdown>
 					<script type="text/template">
@@ -145,7 +147,7 @@ with open('schedules-rpp.csv', 'rb') as csvfile:
 					<section>
 						<h2>Algorithm</h2>
 								<ul>
-									<li>Input: Three child scores<br>
+									<li>Input: Three child scores <br><small>(Green, Yellow, Red)</small><br>
 									<small>
 										<ul>
 											<li>Cognitive</li>
@@ -253,7 +255,25 @@ with open('schedules-rpp.csv', 'rb') as csvfile:
 				<section id="">
 					<iframe data-src="../circles_v2/" width="800" height="600" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:3px solid #666; margin-bottom:5px; max-width: 100%; background: white" allowfullscreen> </iframe><br>
 					<small>N: 274 - Circles: development (inner), temperament (middle), house (outer)</small>
+					<aside class="notes">
+						Some states do not have children, are there possible?
+					</aside>
 				</section>
+				<section id="">
+					<h3>From static to dinamic</h3>
+
+					<ul style="list-style: none; padding:0; margin:0">
+						<li>What can change?</li>
+
+					</ul><br>
+				</section>
+
+
+					<section id="">
+						<iframe data-src="../timeline/" width="800" height="680" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:3px solid #666; margin-bottom:5px; max-width: 100%; background: white" allowfullscreen> </iframe><br>
+						<!-- <small>N: 274 - Circles: development (inner), temperament (middle), house (outer)</small> -->
+					</section>
+
 				<section id="">
 					<h3>From static to dinamic</h3>
 
@@ -268,14 +288,12 @@ with open('schedules-rpp.csv', 'rb') as csvfile:
 				</section>
 
 
-					<section id="">
-						<iframe data-src="../timeline/" width="800" height="680" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:3px solid #666; margin-bottom:5px; max-width: 100%; background: white" allowfullscreen> </iframe><br>
-						<!-- <small>N: 274 - Circles: development (inner), temperament (middle), house (outer)</small> -->
-					</section>
-
 				<section id="">
 					<iframe data-src="../graph.html" width="800" height="600" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:3px solid #666; margin-bottom:5px; max-width: 100%; background: white" allowfullscreen onfocus="document.getElementById('foo').focus();"> </iframe><br>
 					<small>Circles: development (inner), temperament (middle), house (outer)</small>
+					<aside class="notes">
+						The path to the complete green
+					</aside>
 				</section>
 
 				<section id="">
@@ -283,6 +301,7 @@ with open('schedules-rpp.csv', 'rb') as csvfile:
 
 					<ul style="list-style: none; padding:0; margin:0">
 						<li>Each child belongs to a neighborhood</li>
+						<li>&nbsp;</li>
 						<li>What is in common across the neighborhoods? </li>
 						<li>What is in common across the city? </li>
 						<li>How children evolve along time? </li>
@@ -310,6 +329,7 @@ with open('schedules-rpp.csv', 'rb') as csvfile:
 						<aside class="notes">
 							<ol>
 								<li>North parents were more resilient to inform about their homes</li>
+								<li>Cognition in La Boca</li>
 							</ol>
 						</aside>
 
@@ -365,7 +385,7 @@ with open('schedules-rpp.csv', 'rb') as csvfile:
 					<iframe data-src="../simulations/only-cog.html" width="800" height="600" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:3px solid #666; margin-bottom:5px; max-width: 100%; background: white" allowfullscreen> </iframe><br>
 				</section>
 
-				<section id="simulations-all">
+				<section id="simulations-cog-all">
 					<iframe data-src="../simulations/index-scaled.html?dataset=data-timeserie-simulation-only-cognitive.json" width="800" height="600" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:3px solid #666; margin-bottom:5px; max-width: 100%; background: white" allowfullscreen> </iframe><br>
 				</section>
 
@@ -386,9 +406,12 @@ with open('schedules-rpp.csv', 'rb') as csvfile:
 					<p>Explore linear programming models to include budget into the problem</p>
 				</section>
 
-				<section id="thanks">Thank you very much!</section>
+				<section id="thanks">
+					<h3>Thank you very much!</h3>
 
-				<section id="questions">Questions?</section>
+					<p><a href="mailto:matiaslopez@gmail.com">matiaslopez@gmail.com</a>
+				</section>
+
 
 			</div>
 		</div>
