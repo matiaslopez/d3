@@ -14,7 +14,8 @@
 
 		<link rel="stylesheet" href="css/reveal.css">
 		<link rel="stylesheet" href="css/ownstyle.css">
-		<link rel="stylesheet" href="css/theme/black.css" id="theme">
+		<!-- <link rel="stylesheet" href="css/theme/black.css" id="theme"> -->
+		<link rel="stylesheet" href="css/theme/white.css" id="theme">
 
 		<!-- Theme used for syntax highlighting of code -->
 		<link rel="stylesheet" href="lib/css/zenburn.css">
@@ -48,10 +49,16 @@
 					<p>&nbsp;</p>
 					<p><small><i>Matías Lopez-Rosenfeld</i>, Soledad Segretin, Sebastián Lipina</small></p>
 					<p><small>Unidad de Neurobiología Aplicada - CONICET - Argentina</small>
+					<p><small>Universidad de Buenos Aires</small>
 					<p><small><a href="mailto:matiaslopez@gmail.com">matiaslopez@gmail.com</a></small>
 					</p>
 				</section>
-				<section id="introduction" data-markdown>
+				<section id="antonio" data-markdown>
+					<script type="text/template">
+							<img data-src="imgs/larioja.jpg" width="600" class="plain" style="background:none"></br>
+						<small>La Rioja, Argentina - 2012</small>
+					</script>
+				</section>				<section id="introduction" data-markdown>
 					<script type="text/template">
 						<div style="width: 60%; float:left">
 							<img data-src="imgs/argentina.png"  class="plain" style="background:none">
@@ -95,37 +102,28 @@
 				</section>
 				<section>
 					<h3>Experimetrix</h3>
-					<pre><small>
-					<code class="hljs" data-trim contenteditable>
+					<pre>
+					<code class="hljs" data-trim>
 browser = Browser()
 
 url = "https://experimetrix2.com/berkeley/"
 browser.visit(url)
 browser.click_link_by_href("/SPExpAdmin/Defaultq.asp")
 
-button = browser.fill('txtLogon',"5")
-button = browser.fill('txtPassword',"******")
-
 button = browser.find_by_value('LogOn')
 # Interact with elements
 button.click()
 browser.click_link_by_href("/SPExpAdmin/AddToSchedule.asp")
 
-line_num = 0
 with open('schedules-rpp.csv', 'rb') as csvfile:
-    reader = csv.reader(csvfile, delimiter=',', quotechar='|')
-    for row in reader:
-        if line_num:
-            (subject,start_date,start_time,end_date,end_time,all_day_event,description,location,private) = row
-            if parser.parse(start_date) <  datetime.now():
-                print "Old event", subject, start_date
-
-					</code></small></pre>
+  reader = csv.reader(csvfile, delimiter=',', quotechar='|')
+  for row in reader:
+					</code></pre>
 					<p>Add experiment sessions offer to web page.</p>
 				</section>
 				<section id="motivation2" data-markdown>
 					<script type="text/template">
-						### Other needs of Computer Scientists
+						### Other tasks...
 
 						- Printers
 						- Join lots of excel sheets
@@ -135,7 +133,7 @@ with open('schedules-rpp.csv', 'rb') as csvfile:
 
 				<section data-markdown>
 					<script type="text/template">
-						### Interdisciplinary dialog with Sebastián & co.
+						### Interdisciplinary dialog with Sebastián &amp; co.
 
 						- What is inside the structure of cognitive test?
 						- How can we improve evaluation of cognitive abilities?
@@ -256,7 +254,6 @@ with open('schedules-rpp.csv', 'rb') as csvfile:
 					<iframe data-src="../circles_v2/" width="800" height="600" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:3px solid #666; margin-bottom:5px; max-width: 100%; background: white" allowfullscreen> </iframe><br>
 					<small>N: 274 - Circles: development (inner), temperament (middle), house (outer)</small>
 				</section>
-
 				<section id="">
 					<h3>From static to dinamic</h3>
 
@@ -270,29 +267,15 @@ with open('schedules-rpp.csv', 'rb') as csvfile:
 					</span>
 				</section>
 
+
+					<section id="">
+						<iframe data-src="../timeline/" width="800" height="680" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:3px solid #666; margin-bottom:5px; max-width: 100%; background: white" allowfullscreen> </iframe><br>
+						<!-- <small>N: 274 - Circles: development (inner), temperament (middle), house (outer)</small> -->
+					</section>
+
 				<section id="">
 					<iframe data-src="../graph.html" width="800" height="600" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:3px solid #666; margin-bottom:5px; max-width: 100%; background: white" allowfullscreen onfocus="document.getElementById('foo').focus();"> </iframe><br>
 					<small>Circles: development (inner), temperament (middle), house (outer)</small>
-				</section>
-
-				<section id="">
-					<h3>Geo-localization</h3>
-				</section>
-
-
-				<section>
-					<iframe src="../map_circle_tooltip.html" width="800" height="600" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:3px solid #666; margin-bottom:5px; max-width: 100%; background: white" allowfullscreen> </iframe>
-				</section>
-
-				<section id="">
-					<h3>Only complete data</h3>
-					<p>North neighborhood better house conditions</p>
-					<p>South bla bla</p>
-				</section>
-
-
-				<section>
-					<iframe src="../map_sequence/" width="800" height="600" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:3px solid #666; margin-bottom:5px; max-width: 100%; background: white" allowfullscreen> </iframe>
 				</section>
 
 				<section id="">
@@ -306,34 +289,89 @@ with open('schedules-rpp.csv', 'rb') as csvfile:
 					</ul>
 				</section>
 
-				<section id="mdp">
-					<h3>Evolution of scores</h3>
 
-					<p class="fragment fade-in">How this scores change over time?</p>
-					<p class="fragment fade-in">Why the scores change?</p>
-					<p class="fragment fade-in">What are the actions a child could take?</p>
+				<section>
+					<iframe src="../map_circle_tooltip.html" width="800" height="600" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:3px solid #666; margin-bottom:5px; max-width: 100%; background: white" allowfullscreen> </iframe>
+					<aside class="notes">
+						<ol>
+							<li>Difference among south and north</li>
+							<li>Similar temperament</li>
+						</ol>
+					</aside>
 				</section>
+
+				<section id="">
+					<h3>Geo-localization</h3>
+					Including missing values
+				</section>
+
+				<section>
+					<iframe src="../map_sequence/" width="800" height="600" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:3px solid #666; margin-bottom:5px; max-width: 100%; background: white" allowfullscreen> </iframe>
+						<aside class="notes">
+							<ol>
+								<li>North parents were more resilient to inform about their homes</li>
+							</ol>
+						</aside>
+
+				</section>
+
+
+
 				<section>
 					<h3>Child model</h3>
-					<p>Discrete time</p>
-					<p>One action</p>
-					<p>What is the "value" of a child? Is it correct?</p>
-					<p>Can we add dimensions?</p>
+					<p>Which is the "value" of a child? Is it correct?</p>
+					<p class="fragment fade-in">Can we add dimensions?</p>
+					<aside class="notes">
+						<ol>
+							<li>Value as a function that can be maximized (goal)</li>
+							<li>New graphical representation</li>
+						</ol>
+					</aside>
 				</section>
 
 				<section>
 				<iframe data-src="../radar/index.html?params=Cognition,Temperament,House" width="1000" height="600" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:3px solid #666; margin-bottom:5px; max-width: 100%; background: white" allowfullscreen onfocus="document.getElementById('foo').focus();"> </iframe>
 				</section>
 
+
+				<section id="mdp">
+					<h3>Evolution of scores</h3>
+
+					<p class="fragment fade-in">How this scores change over time?</p>
+					<p class="fragment fade-in">Why the scores change?</p>
+					<p class="fragment fade-in">What are the actions that can modify the score?</p>
+					<aside class="notes">
+						<ol>
+							<li>Discrete time</li>
+						</ol>
+					</aside>
+				</section>
+
 				<section>
-					<h3>MDP (Markov Decision Process)</h3>
+					<h3>Markov Decision Process (MDP)</h3>
 					<img data-src="imgs/mdp-states.png" >
-					<p>The complete model would be a world where each agent earns the biggest reward</p>
+					<p>The world be a set of agents to maximize the state</p>
 					<p class="fragment fade-in">Is this really possible as a model?</p>
 					<p class="fragment fade-in">What are the set of possible actions for each child?</p>
 				</section>
 
-				<section id="simulations">simulations in only one dimension</section>
+				<section id="prob-models">
+					<p><img data-src="../simulations/probs/fantasy.png"  class="plain" style="background:none"></p>
+					<p class="fragment fade-in"><img data-src="../simulations/probs/regular.png"  class="plain" style="background:none"></p>
+					<p class="fragment fade-in"><img data-src="../simulations/probs/pessimistic.png"  class="plain" style="background:none"></p>
+				</section>
+
+				<section id="simulations">
+					<iframe data-src="../simulations/only-cog.html" width="800" height="600" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:3px solid #666; margin-bottom:5px; max-width: 100%; background: white" allowfullscreen> </iframe><br>
+				</section>
+
+				<section id="simulations-all">
+					<iframe data-src="../simulations/index-scaled.html?dataset=data-timeserie-simulation-only-cognitive.json" width="800" height="600" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:3px solid #666; margin-bottom:5px; max-width: 100%; background: white" allowfullscreen> </iframe><br>
+				</section>
+
+				<section id="simulations-all">
+					<iframe data-src="../simulations/index-scaled.html" width="800" height="600" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:3px solid #666; margin-bottom:5px; max-width: 100%; background: white" allowfullscreen> </iframe><br>
+				</section>
 
 				<section id="conclusions">
 					<h3>Conclusions</h3>

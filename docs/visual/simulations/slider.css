@@ -84,11 +84,11 @@ input[type=range]:focus::-ms-fill-upper {
   background: #367ebd;
 }
 
-svg{
+/*svg{
     top: 200; left: 200; position:'absolute';
     border: 1px solid #000000;
 }
-
+*/
 
 .footer{
     position:fixed;

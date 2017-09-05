@@ -29,7 +29,7 @@
 <body>
 <p style="text-align:center;">
   <label for="step_val"
-         style="display: inline-block; width: 120px; text-align: center">
+         style="display: inline-block; width: 140px; text-align: center">
          N= 200 - Step = <span id="step_val-value">...</span>
   </label>
   <input type="range" min="0" max="50" step="1" id="step_val">
@@ -39,12 +39,10 @@
     <option value="optimistic">Optimistic</option>
     <option value="pessimistic">Pessimistic</option>
   </select>
-  Simulate over: <a href="./index.html" class="linkPopulation" id="link-all">All</a> -
-  <a href="./index.html?dataset=data-timeserie-simulation-only-cognitive.json" class="linkPopulation" id="link-cognitive">Cognitive</a>
 </p>
 
 <script src="d3.v4.min.js"></script>
-<div  id='canvas' style="text-align:center;"><svg width="1000" height="600"></svg></div>
+<div  id='canvas' style="text-align:center;"><svg width="600" height="400"></svg></div>
 
 
 <script>
@@ -64,14 +62,8 @@ function getUrlVars()
     return vars;
 }
 
-var a = getUrlVars()
 var dataset = "only-cog-visualization.json"
-if (a.dataset !== undefined){
-  d3.selectAll("#link-cognitive").style("color", "#6666EE");
-  dataset = a.dataset
-} else {
-  d3.selectAll("#link-all").style("color", "#6666EE");
-}
+
 
 // console.log(dataset);
 
