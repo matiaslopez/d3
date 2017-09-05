@@ -90,10 +90,10 @@
 							<img data-src="imgs/analysis-synthesis.png"  class="plain" style="background:none">
 						</div>
 						<div style="width: 55%; float:right">
-							A research assistant code the answers:<br>
+							A research assistant codes the answers:<br>
 							<ul>
 								<li>Boring task</li>
-								<li>Possible mistakes</li>
+								<li>Possibility mistakes</li>
 							</ul><br><br>
 							<span class="fragment">
 							Possible solution:
@@ -121,7 +121,7 @@ with open('schedules-rpp.csv', 'rb') as csvfile:
   reader = csv.reader(csvfile, delimiter=',', quotechar='|')
   for row in reader:
 					</code></pre>
-					<p>Add experiment sessions offer to web page.</p>
+					<p>Post new experiment sessions to web page.</p>
 				</section>
 				<section id="motivation2" data-markdown>
 					<script type="text/template">
@@ -313,7 +313,7 @@ with open('schedules-rpp.csv', 'rb') as csvfile:
 					<iframe src="../map_circle_tooltip.html" width="800" height="600" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:3px solid #666; margin-bottom:5px; max-width: 100%; background: white" allowfullscreen> </iframe>
 					<aside class="notes">
 						<ol>
-							<li>Difference among south and north</li>
+							<li>Difference among south and north in house</li>
 							<li>Similar temperament</li>
 						</ol>
 					</aside>
@@ -339,7 +339,7 @@ with open('schedules-rpp.csv', 'rb') as csvfile:
 
 				<section>
 					<h3>Child model</h3>
-					<p>Which is the "value" of a child? Is it correct?</p>
+					<p>What is the "value" of a child?</p>
 					<p class="fragment fade-in">Can we add dimensions?</p>
 					<aside class="notes">
 						<ol>
@@ -369,14 +369,27 @@ with open('schedules-rpp.csv', 'rb') as csvfile:
 
 				<section>
 					<h3>Markov Decision Process (MDP)</h3>
+					<div style="width: 50%; float:left">
+						<p><img data-src="imgs/mdp-states.png" ></p>
+					</div>
+					<div style="width: 45%; float:right;">
+					<p class="fragment fade-in">
+					<img data-src="imgs/maze.png" width="400"
+					style="background: rgba(255, 255, 255, 0); border: 0px solid #222; box-shadow: 0 0 0px rgba(0, 0, 0, 0);"></p>
+					</div>
+				</section>
+				<section>
+					<h3>Markov Decision Process (MDP)</h3>
 					<img data-src="imgs/mdp-states.png" >
-					<p>The world be a set of agents to maximize the state</p>
-					<p class="fragment fade-in">Is this really possible as a model?</p>
 					<p class="fragment fade-in">What are the set of possible actions for each child?</p>
+					<p class="fragment fade-in">The world be a set of agents to maximize the state</p>
+					<p class="fragment fade-in">Is this really possible as a model?</p>
 				</section>
 
 				<section id="prob-models">
-					<p><img data-src="../simulations/probs/fantasy.png"  class="plain" style="background:none"></p>
+					<h3>Modeling transitions</h3>
+
+					<p class="fragment fade-in"><img data-src="../simulations/probs/fantasy.png"  class="plain" style="background:none"></p>
 					<p class="fragment fade-in"><img data-src="../simulations/probs/regular.png"  class="plain" style="background:none"></p>
 					<p class="fragment fade-in"><img data-src="../simulations/probs/pessimistic.png"  class="plain" style="background:none"></p>
 				</section>
@@ -403,6 +416,8 @@ with open('schedules-rpp.csv', 'rb') as csvfile:
 				<section id="future-directions">
 					<h3>Future directions</h3>
 					<p>Validate probabilities with real data</p>
+					<p>Influence of the age</p>
+					<p>Cross-cultural/country implementation</p>
 					<p>Explore linear programming models to include budget into the problem</p>
 				</section>
 
