@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+      <script src="d3.v4.min.js"></script>
+      <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="viz"></div>
+
+  <select id="algorithm">
+    <option value="fantasy" selected="selected">Fantasy</option>
+    <option value="regular">Regular</option>
+    <option value="optimistic">Optimistic</option>
+    <option value="pessimistic">Pessimistic</option>
+  </select>
+    <script type="text/javascript">
+
+
+      var dataset = "data_r.json";
+      var risk_cols = ["#E84B30", "#FFD432", "#49E83E"]
+function updateChart(current_algorithm) {
+
+  d3.json(dataset, function(error, graph) {
+    if (error) throw error;
+
+    console.log("Current algorithm: " + current_algorithm)
+
+        var tooltip = d3.select("body")
+            .append("div")
+            .attr("class", "tooltip")
+            .style("position", "absolute")
+            .style("z-index", "10")
+            .style("visibility", "hidden")
+            .text("a simple tooltip");
+
+        var svgContainer = d3.select("body").append("svg")
+                                            .attr("width", 800)
+                                            .attr("height", 700);
+
+        var myGroups = svgContainer.selectAll('g').data(graph);
+
+        console.log(myGroups)
+        // enter selection
+          // group_by(BA, DLS,FS, LC) %>%
+
+        var myGroupsEnter = myGroups.enter().append("g");
+        var myGroupsEnterFigures = myGroupsEnter.append("g");
+
+        myGroupsEnterFigures.append("circle")
+                                .attr("r", function (d) { return 31; })
+                                // .on("mouseover", function(d){return tooltip.style("visibility", "visible").text("House value:" + d.house_col);})
+                               .style("fill", function(d) { return risk_cols[d.BA]; });
+        myGroupsEnterFigures.append("circle")
+                               .attr("r", function (d) { return 23; })
+                               .style("fill", function(d) { return risk_cols[d.DLS]; });
+        myGroupsEnterFigures.append("circle")
+                               .attr("r", function (d) { return 15; })
+                               .style("fill", function(d) { return risk_cols[d.FS]; });
+        myGroupsEnterFigures.append("circle")
+                               .attr("r", function (d) { return 7; })
+                               .style("fill", function(d) { return risk_cols[d.LC]; });
+        myGroupsEnterFigures.selectAll("circle")
+                                .attr("cx", function (d) { return 1.3 * d.n + 25; })
+                                .attr("cy", function (d) { return 1.3 * d.n - 80; })
+                                .style("stroke", "black")    // set the line colour
+                                .style("stroke-opacity", .2) // set the stroke opacity
+                                .on("mouseover", function(d){return tooltip.style("visibility", "visible").html(d.n);})
+                                .on("mousemove", function(){return tooltip.style("top",
+                                    (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");})
+                                .on("mouseout", function(){return tooltip.style("visibility", "hidden");});
+
+        myGroupsEnterFigures.style("opacity", function (d) { return 0.5+d.percent*1/2; }); // set the stroke opacity
+
+        myGroupsEnter.append("text")
+            .attr("x", function (d) { return 1.3 * d.n + 25; })
+            .attr("y", function (d) { return 1.3 * d.n - 80; })
+            .attr("text-anchor", "middle")
+            .attr("dy", ".35em")
+            .style("opacity", 1) // set the stroke opacity
+            .text(function(d){return d.n});
+
+var simulation = d3.forceSimulation(myGroupsEnter)
+    .velocityDecay(0.2)
+    .force("x", d3.forceX().strength(0.002))
+    .force("y", d3.forceY().strength(0.002))
+    .force("collide", d3.forceCollide().radius(function(d) { return d.r + 0.5; }).iterations(2))
+    .on("tick", ticked);
+
+function ticked() {
+  context.clearRect(0, 0, width, height);
+  context.save();
+  context.translate(width / 2, height / 2);
+
+  context.beginPath();
+  nodes.forEach(function(d) {
+    context.moveTo(d.x + d.r, d.y);
+    context.arc(d.x, d.y, d.r, 0, tau);
+  });
+  context.fillStyle = "#ddd";
+  context.fill();
+  context.strokeStyle = "#333";
+  context.stroke();
+
+  context.restore();
+}
+
+
+      });
+    }
+
+updateChart("fantasy");
+  // d3.selectAll("#fantasy")
+  // .style("visibility", "visible")
+    </script>
+</body>
+</html>
