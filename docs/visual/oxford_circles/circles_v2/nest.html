@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<head>
+  <title>Pack layout</title>
+</head>
+
+<style>
+circle {
+  fill: #333;
+  /*opacity: 0.3;*/
+  stroke: white;
+}
+</style>
+<link rel="stylesheet" href="style.css">
+
+<body>
+
+  Population: <select id="algorithm">
+    <option value="" selected="selected">All</option>
+    <option value="3">3</option>
+    <option value="7006">7006</option>
+  </select>
+
+  <input type="checkbox" class="valFilter" value="LC" checked> LC
+  <input type="checkbox" class="valFilter" value="DLS" checked> DLS
+  <input type="checkbox" class="valFilter" value="BA" checked> BA
+  <input type="checkbox" class="valFilter" value="FS" checked> FS
+  <!-- <input type="checkbox" class="valFilter" value="gender"> Gender -->
+  <input type="button" value="Redraw" onclick="filter_plot();" /><br>
+
+
+  <svg width="1024" height="768">
+    <g></g>
+  </svg>
+
+  <script src="d3.v4.min.js"></script>
+  <script>
+
+
+var duration_fade = 500;
+
+function filter_plot() {
+  var choices = [];
+  d3.selectAll(".valFilter").each(function(d){
+    cb = d3.select(this);
+    if(cb.property("checked")){
+      choices.push(cb.property("value"));
+    }
+  });
+  console.log(choices);
+
+  d3.csv(dataset, function(data) {
+    // console.log(data)
+    var entries_nest = d3.nest()
+    .key(function(d) { return d.School; })
+    .key(function(d) { return JSON.stringify([
+                choices.includes("LC") ? d.LC : "-",
+                choices.includes("DLS") ? d.DLS : "-",
+                choices.includes("BA") ? d.BA : "-",
+                choices.includes("FS") ? d.FS : "-"
+                ]); })
+    .rollup(function(d) { return {count: d.length,
+                BA: d3.mean(d, function(v) { return v.BA; }),
+                LC: d3.mean(d, function(v) { return v.LC; }),
+                DLS: d3.mean(d, function(v) { return v.DLS; }),
+                FS: d3.mean(d, function(v) { return v.FS; }),
+                gender: d3.mean(d, function(v) { return v.gender; }),
+                ethnic: d3.mean(d, function(v) { return v.ethnic; })
+              }; })
+    .entries(data);
+    console.log(entries_nest);
+
+    var school_ids = d3.nest()
+    // .key(function(d) { return d.data.row_name; })
+    .key(function(d) { return d.School; })
+    .rollup(function(d) { return "School-Teacher: " + d[0]["School"] + " (" +  d.length + " students)";})
+    .entries(data);
+
+// 70-37
+    // console.log(school_ids);
+    // console.log(choices.length);
+    d3.select('svg g').selectAll('g').transition().duration(duration_fade).style("opacity", 1e-6).remove();
+    d3.transition()
+      .duration(duration_fade)
+      .on("end", function bla() {
+        updateGraph({"name": "A1", "value": {"count": 0, "dimensions": choices, "n": choices.length} ,"children": entries_nest[0].values});
+        // console.log("End transtion");
+      });
+  });
+}
+
+
+// Read a page's GET URL variables and return them as an associative array.
+function getUrlVars()
+{
+    var vars = [], hash;
+    var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+    for(var i = 0; i < hashes.length; i++)
+    {
+        hash = hashes[i].split('=');
+        vars.push(hash[0]);
+        vars[hash[0]] = hash[1];
+    }
+    return vars;
+}
+
+var a = getUrlVars()
+var dataset = "school_3.csv"
+if (a.dataset !== undefined){
+  dataset = a.dataset
+}
+
+var risk_cols = ["#49E83E", "#FFD432", "#E84B30"]
+var risk_text = ["Green", "Ambar", "Red"]
+var radius_multiplier = [[1], [1,0.5], [1,0.7,0.33], [1,0.77,0.55,0.3]]
+
+
+// d3.csv(dataset, function(data) {
+//   // console.log(data)
+//   var entries_nest = d3.nest()
+//   // .key(function(d) { return d.data.row_name; })
+//   .key(function(d) { return JSON.stringify([d.BA, d.LC, d.FS]); })
+//   // .key(function(d) { return d.LC; }) GENDER here
+//   // .key(function(d) { return d.DLS; })
+//   // .key(function(d) { return d.gender; })
+//   .rollup(function(d) { return {count: d.length,
+//               BA: d3.mean(d, function(v) { return v.BA; }),
+//               LC: d3.mean(d, function(v) { return v.LC; }),
+//               DLS: d3.mean(d, function(v) { return v.DLS; }),
+//               FS: d3.mean(d, function(v) { return v.FS; }),
+//               gender: d3.mean(d, function(v) { return v.gender; }),
+//               ethnic: d3.mean(d, function(v) { return v.ethnic; })
+//             }; })
+//   .entries(data);
+
+// // console.log(JSON.stringify(entries_nest));
+// console.log(entries_nest);
+
+// //console.log(d);
+//   updateGraph({  "name": "A1", "value": {"count": 0, "dimensions": ["FS", "BA",  "LC"], "n": 3} ,"children": entries_nest});
+
+// });
+
+function updateGraph(data) {
+  console.log(data);
+
+  var packLayout = d3.pack()
+    .size([1024, 768]);
+
+  var rootNode = d3.hierarchy(data)
+
+  rootNode.sum(function(d) {
+    // console.log(d.key + " " + d.value.count)
+    return d.value.count;
+    // return d.value["count"];
+  });
+  // console.log(rootNode)
+  var n = rootNode.data.value.n;
+  var dimensions = rootNode.data.value.dimensions;
+
+  packLayout(rootNode);
+
+  var tooltip = d3.select("body")
+    .append("div")
+    .attr("class", "tooltip")
+    .style("position", "absolute")
+    .style("z-index", "10")
+    .style("visibility", "hidden")
+    .text("a simple tooltip");
+
+  // d3.select('svg g').selectAll('g').transition().duration(duration_fade).style("opacity", 1e-6).remove();
+
+  var nodes = d3.select('svg g')
+    .selectAll('g')
+    .data(rootNode.descendants())
+    .enter()
+    .append('g')
+    .attr('transform', function(d) {return 'translate(' + [d.x, d.y] + ')'})
+
+  var i;
+  for (i = 0; i < n; i++) {
+    console.log( radius_multiplier[n-1][i] + " " + dimensions[i])
+    nodes
+      .append('circle')
+        .attr('r', function(d) { return d.r * radius_multiplier[n-1][i]; })
+        .attr('class', function(d) { return d.children === undefined ? "inner" : "outer"; })
+        // .style("fill", function(d) { return risk_cols[d.data.value.BA]; })
+        .style("fill", function(d) { return risk_cols[d.data.value[dimensions[i]]]; })
+        .style("opacity", 0)
+        .transition().duration(duration_fade).style("opacity", function (d) { return d.children === undefined ? 1 : 0; }); // set the
+  }
+
+  // nodes.transition().duration(duration_fade).style("opacity", function (d) { return d.children === undefined ? 1 : 0; }); // set the stroke opacity
+
+  nodes
+    .append('text')
+    .attr("text-anchor", "middle")
+    .attr("dy", ".35em")
+    .style("opacity", 1)
+    .text(function(d) {
+      return d.children === undefined ? d.data.value.count : '';
+    })
+
+  nodes.selectAll(".inner")
+    // .attr("cx", function (d) { return 1.3 * d.n + 25; })
+    // .attr("cy", function (d) { return 1.3 * d.n - 80; })
+    .style("stroke", "black")    // set the line colour
+    .style("stroke-opacity", .2) // set the stroke opacity
+    .on("mouseover", function(d){return d.children === undefined ? tooltip.style("visibility", "visible").html(
+              "N: " + d.value + dimensions +
+              (!dimensions.includes("LC") ? "": "<br> Language and Cognition: " + risk_text[d.data.value.LC]) +
+              (!dimensions.includes("DLS") ? "": "<br> Daily Living Skills: " + risk_text[d.data.value.DLS]) +
+              (!dimensions.includes("BA") ? "": "<br> Behavioral Adjustment: " + risk_text[d.data.value.BA]) +
+              (!dimensions.includes("FS") ? "": "<br> Family Support: " + risk_text[d.data.value.FS])): 0;})
+    .on("mousemove", function(){return tooltip.style("top",
+        (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");})
+    .on("mouseout", function(){return tooltip.style("visibility", "hidden");});
+}
+filter_plot();
+  </script>
+</body>
+</html>
