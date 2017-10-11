@@ -16,7 +16,7 @@ circle {
 <body>
 
   School-Teacher: <select id="schoolID">
-    <option value="" selected="selected">All</option>
+    <!-- <option value="" selected="selected">All</option> -->
   </select>
 
   <input type="checkbox" class="valFilter" value="LC" checked> LC
@@ -103,14 +103,16 @@ function filter_plot() {
     var school_ids = d3.nest()
     // .key(function(d) { return d.data.row_name; })
     .key(function(d) { return d.School; })
+    // .sortKeys(d3.ascending)
+    .sortKeys(function(a,b) { return (+a.split("-")[0]) - (+b.split("-")[0]); })
     .rollup(function(d) { return d[0]["School"] + " (" +  d.length + " students)";})
     .entries(data);
 
-    // console.log(school_ids);
+    console.log(school_ids);
     var select = d3.select('#schoolID');
     var options = select
       .selectAll('option')
-      .data(school_ids).enter()
+      .data([{key: "", value: "All"}].concat(school_ids)).enter()
         .append('option')
         .attr("value", function (d) { return d.key; })
         .text(function (d) { return d.value; });
