@@ -32,8 +32,8 @@ d3.json("data.json", function(error, graph) {
   if (error) throw error;
 
   graph.links.forEach(function(d){
-    d.source = d.source_id;
-    d.target = d.target_id;
+    d.source = d.source==0? 10 : d.source;
+    d.target = d.target==0? 10 : d.target;
   });
 
   var link = svg.append("g")
