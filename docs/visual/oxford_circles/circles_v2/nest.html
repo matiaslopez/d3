@@ -15,10 +15,8 @@ circle {
 
 <body>
 
-  Population: <select id="algorithm">
+  School-Teacher: <select id="schoolID">
     <option value="" selected="selected">All</option>
-    <option value="3">3</option>
-    <option value="7006">7006</option>
   </select>
 
   <input type="checkbox" class="valFilter" value="LC" checked> LC
@@ -39,56 +37,6 @@ circle {
 
 var duration_fade = 500;
 
-function filter_plot() {
-  var choices = [];
-  d3.selectAll(".valFilter").each(function(d){
-    cb = d3.select(this);
-    if(cb.property("checked")){
-      choices.push(cb.property("value"));
-    }
-  });
-  console.log(choices);
-
-  d3.csv(dataset, function(data) {
-    // console.log(data)
-    var entries_nest = d3.nest()
-    .key(function(d) { return d.School; })
-    .key(function(d) { return JSON.stringify([
-                choices.includes("LC") ? d.LC : "-",
-                choices.includes("DLS") ? d.DLS : "-",
-                choices.includes("BA") ? d.BA : "-",
-                choices.includes("FS") ? d.FS : "-"
-                ]); })
-    .rollup(function(d) { return {count: d.length,
-                BA: d3.mean(d, function(v) { return v.BA; }),
-                LC: d3.mean(d, function(v) { return v.LC; }),
-                DLS: d3.mean(d, function(v) { return v.DLS; }),
-                FS: d3.mean(d, function(v) { return v.FS; }),
-                gender: d3.mean(d, function(v) { return v.gender; }),
-                ethnic: d3.mean(d, function(v) { return v.ethnic; })
-              }; })
-    .entries(data);
-    console.log(entries_nest);
-
-    var school_ids = d3.nest()
-    // .key(function(d) { return d.data.row_name; })
-    .key(function(d) { return d.School; })
-    .rollup(function(d) { return "School-Teacher: " + d[0]["School"] + " (" +  d.length + " students)";})
-    .entries(data);
-
-// 70-37
-    // console.log(school_ids);
-    // console.log(choices.length);
-    d3.select('svg g').selectAll('g').transition().duration(duration_fade).style("opacity", 1e-6).remove();
-    d3.transition()
-      .duration(duration_fade)
-      .on("end", function bla() {
-        updateGraph({"name": "A1", "value": {"count": 0, "dimensions": choices, "n": choices.length} ,"children": entries_nest[0].values});
-        // console.log("End transtion");
-      });
-  });
-}
-
 
 // Read a page's GET URL variables and return them as an associative array.
 function getUrlVars()
@@ -105,41 +53,85 @@ function getUrlVars()
 }
 
 var a = getUrlVars()
-var dataset = "school_3.csv"
+var dataset = "all_data.csv"
 if (a.dataset !== undefined){
+  console.log("Dataset param: " + a.dataset);
   dataset = a.dataset
 }
 
 var risk_cols = ["#49E83E", "#FFD432", "#E84B30"]
 var risk_text = ["Green", "Ambar", "Red"]
-var radius_multiplier = [[1], [1,0.5], [1,0.7,0.33], [1,0.77,0.55,0.3]]
+// var radius_multiplier = [[1], [1,0.5], [1,0.7,0.33], [1,0.77,0.55,0.3]]
+var radius_multiplier = [[1], [0.5,1], [0.33,0.7,1], [0.3, 0.55, 0.77,1]]
 
 
-// d3.csv(dataset, function(data) {
-//   // console.log(data)
-//   var entries_nest = d3.nest()
-//   // .key(function(d) { return d.data.row_name; })
-//   .key(function(d) { return JSON.stringify([d.BA, d.LC, d.FS]); })
-//   // .key(function(d) { return d.LC; }) GENDER here
-//   // .key(function(d) { return d.DLS; })
-//   // .key(function(d) { return d.gender; })
-//   .rollup(function(d) { return {count: d.length,
-//               BA: d3.mean(d, function(v) { return v.BA; }),
-//               LC: d3.mean(d, function(v) { return v.LC; }),
-//               DLS: d3.mean(d, function(v) { return v.DLS; }),
-//               FS: d3.mean(d, function(v) { return v.FS; }),
-//               gender: d3.mean(d, function(v) { return v.gender; }),
-//               ethnic: d3.mean(d, function(v) { return v.ethnic; })
-//             }; })
-//   .entries(data);
+function filter_plot() {
+  var choices = [];
+  console.log("SchoolID: " + d3.select("#schoolID").value);
+  d3.selectAll(".valFilter").each(function(d){
+    cb = d3.select(this);
+    if(cb.property("checked")){
+      choices.push(cb.property("value"));
+    }
+  });
+  // console.log(choices);
+  // console.log(dataset);
 
-// // console.log(JSON.stringify(entries_nest));
-// console.log(entries_nest);
+  var school_filter = d3.select("#schoolID").node().value;
+  var is_school = school_filter != "";
+  d3.csv(dataset, function(data) {
+    // console.log(data)
+    var entries_nest = d3.nest()
+    // .key(function(d) { return d.School; })
+    .key(function(d) { return JSON.stringify([
+                choices.includes("LC") ? d.LC : "-",
+                choices.includes("DLS") ? d.DLS : "-",
+                choices.includes("BA") ? d.BA : "-",
+                choices.includes("FS") ? d.FS : "-"
+                ]); })
+    .rollup(function(d) { return {count: d.length,
+                BA: d3.mean(d, function(v) { return v.BA; }),
+                LC: d3.mean(d, function(v) { return v.LC; }),
+                DLS: d3.mean(d, function(v) { return v.DLS; }),
+                FS: d3.mean(d, function(v) { return v.FS; }),
+                gender: d3.mean(d, function(v) { return v.gender; }),
+                ethnic: d3.mean(d, function(v) { return v.ethnic; })
+              }; })
+    .entries(is_school ? data.filter(function(c) {return c.School == school_filter}) : data);
+    // console.log(entries_nest);
 
-// //console.log(d);
-//   updateGraph({  "name": "A1", "value": {"count": 0, "dimensions": ["FS", "BA",  "LC"], "n": 3} ,"children": entries_nest});
+    var school_ids = d3.nest()
+    // .key(function(d) { return d.data.row_name; })
+    .key(function(d) { return d.School; })
+    .rollup(function(d) { return d[0]["School"] + " (" +  d.length + " students)";})
+    .entries(data);
 
-// });
+    // console.log(school_ids);
+    var select = d3.select('#schoolID');
+    var options = select
+      .selectAll('option')
+      .data(school_ids).enter()
+        .append('option')
+        .attr("value", function (d) { return d.key; })
+        .text(function (d) { return d.value; });
+
+// 70-37
+    // console.log(choices.length);
+    d3.select('svg g').selectAll('g').transition().duration(duration_fade).style("opacity", 1e-6).remove();
+    d3.transition()
+      .duration(duration_fade)
+      .on("end", function bla() {
+        updateGraph({"name": "A1", "value": {"count": 0, "dimensions": choices, "n": choices.length} ,"children": entries_nest});
+        // updateGraph({"name": "A1", "value": {"count": 0, "dimensions": choices, "n": choices.length} ,"children": entries_nest[0].values});
+        // console.log("End transtion");
+      });
+  });
+}
+
+
+
+
+
 
 function updateGraph(data) {
   console.log(data);
@@ -178,7 +170,7 @@ function updateGraph(data) {
     .attr('transform', function(d) {return 'translate(' + [d.x, d.y] + ')'})
 
   var i;
-  for (i = 0; i < n; i++) {
+  for (i = n-1; i >= 0; i--) {
     console.log( radius_multiplier[n-1][i] + " " + dimensions[i])
     nodes
       .append('circle')
@@ -207,7 +199,7 @@ function updateGraph(data) {
     .style("stroke", "black")    // set the line colour
     .style("stroke-opacity", .2) // set the stroke opacity
     .on("mouseover", function(d){return d.children === undefined ? tooltip.style("visibility", "visible").html(
-              "N: " + d.value + dimensions +
+              "N: " + d.value +
               (!dimensions.includes("LC") ? "": "<br> Language and Cognition: " + risk_text[d.data.value.LC]) +
               (!dimensions.includes("DLS") ? "": "<br> Daily Living Skills: " + risk_text[d.data.value.DLS]) +
               (!dimensions.includes("BA") ? "": "<br> Behavioral Adjustment: " + risk_text[d.data.value.BA]) +
