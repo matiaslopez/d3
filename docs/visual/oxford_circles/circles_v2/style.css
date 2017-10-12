@@ -14,7 +14,7 @@ path {
     shape-rendering: crispEdges;
 }
 
-div.tooltip {
+div.ownTooltip {
     position: absolute;
     text-align: center;
     width: 220px;
