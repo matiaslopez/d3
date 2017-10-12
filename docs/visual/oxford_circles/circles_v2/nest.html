@@ -49,7 +49,8 @@
     </form>
 </nav>
   <div class="container">
-    <div class="row">
+    <div class="row spacer">&nbsp;</div>
+    <div class="row spacer">
       <div class="col align-self-center text-center svg-area-to-save">
       <div id="sliders"></div>
 
@@ -107,9 +108,10 @@ var tooltip = d3.select("body")
   .style("visibility", "hidden")
   .text("a simple tooltip");
 
+
 function filter_plot() {
   var choices = [];
-  console.log("SchoolID: " + d3.select("#schoolID").value);
+  // console.log("SchoolID: " + d3.select("#schoolID").value);
   d3.selectAll(".valFilter").each(function(d){
     cb = d3.select(this);
     if(cb.property("checked")){
@@ -142,25 +144,22 @@ function filter_plot() {
     .entries(is_school ? data.filter(function(c) {return c.School == school_filter}) : data);
     // console.log(entries_nest);
 
+    var len_students = data.filter( function(c) { return is_school ? c.School == school_filter : true}).length
 
     var school_ids = d3.nest()
-    // .key(function(d) { return d.data.row_name; })
     .key(function(d) { return d.School; })
-    // .sortKeys(d3.ascending)
     .sortKeys(function(a,b) { return (+a.split("-")[0]) - (+b.split("-")[0]); })
     .rollup(function(d) { return d[0]["School"] + " (" +  d.length + " students)";})
     .entries(data);
 
-    console.log(school_ids);
     var select = d3.select('#schoolID');
     var options = select
       .selectAll('option')
-      .data([{key: "", value: "All (" +  data.length + " students)"}].concat(school_ids)).enter()
+      .data([{key: "", value: "All (" +  len_students + " students)"}].concat(school_ids)).enter()
         .append('option')
         .attr("value", function (d) { return d.key; })
         .text(function (d) { return d.value; });
 
-// 70-37
     // console.log(choices.length);
     tooltip.style("visibility", "hidden");
 
@@ -168,7 +167,7 @@ function filter_plot() {
     d3.transition()
       .duration(duration_fade)
       .on("end", function bla() {
-        updateGraph({"name": "A1", "value": {"count": data.length, "dimensions": choices, "n": choices.length} ,"children": entries_nest});
+        updateGraph({"name": "A1", "value": {"count": len_students, "dimensions": choices, "n": choices.length} ,"children": entries_nest});
         // updateGraph({"name": "A1", "value": {"count": 0, "dimensions": choices, "n": choices.length} ,"children": entries_nest[0].values});
         // console.log("End transtion");
       });
@@ -181,7 +180,7 @@ function filter_plot() {
 
 
 function updateGraph(data) {
-  console.log(data);
+  // console.log(data);
 
   var packLayout = d3.pack()
     .size([900, 768]);
@@ -193,7 +192,7 @@ function updateGraph(data) {
     return d.value.count;
     // return d.value["count"];
   });
-  console.log(rootNode)
+  // console.log(rootNode)
   var n_students = rootNode.data.value.count;
   var n_dimensions = rootNode.data.value.n;
   var dimensions = rootNode.data.value.dimensions;
@@ -212,7 +211,7 @@ function updateGraph(data) {
 
   var i;
   for (i = n_dimensions-1; i >= 0; i--) {
-    console.log( radius_multiplier[n_dimensions-1][i] + " " + dimensions[i])
+    // console.log( radius_multiplier[n_dimensions-1][i] + " " + dimensions[i])
     nodes
       .append('circle')
         .attr('r', function(d) { return d.r * radius_multiplier[n_dimensions-1][i]; })
