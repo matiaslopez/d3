@@ -92,6 +92,12 @@ var risk_text = ["Green", "Ambar", "Red"]
 // var radius_multiplier = [[1], [1,0.5], [1,0.7,0.33], [1,0.77,0.55,0.3]]
 var radius_multiplier = [[1], [0.5,1], [0.33,0.7,1], [0.3, 0.55, 0.77,1]]
 
+d3.select('svg g')
+    .append("rect")
+      .attr("width", "100%")
+      .attr("height", "100%")
+      .attr("fill", "white");
+
 
 var tooltip = d3.select("body")
   .append("div")
@@ -195,7 +201,6 @@ function updateGraph(data) {
   packLayout(rootNode);
 
 
-
   // d3.select('svg g').selectAll('g').transition().duration(duration_fade).style("opacity", 1e-6).remove();
 
   var nodes = d3.select('svg g')
@@ -261,11 +266,6 @@ d3.selectAll(".valFilter").on("change",filter_plot);
 
 
 d3.select("#saveButton")
-// d3.select("#sliders")
-//     .append("input")
-//     .attr("type","button")
-//     .attr("class","button")
-//     .attr("value", "Save..." )
     .on('click', function(q){
       console.log("Saving...");
       var svgString = getSVGString(d3.selectAll(".svg-area-to-save").selectAll("svg").node());
