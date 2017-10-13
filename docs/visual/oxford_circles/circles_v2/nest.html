@@ -26,6 +26,18 @@
     <form class="form-inline">
         <label class="mr-sm-2" for="custom-control-description">School-Teacher</label>
           <select class="custom-select mb-2 mr-sm-2 mb-sm-0" id="schoolID"></select>
+
+        <label class="custom-control custom-checkbox mb-2 mr-sm-2 mb-sm-0">
+          <input type="checkbox" class="valFilterGroup form-check-input" value="Gender">
+          <span class="custom-control-description">Split by gender</span>
+        </label>
+        <label class="custom-control custom-checkbox mb-2 mr-sm-2 mb-sm-0">
+          <input type="checkbox" class="valFilterGroup form-check-input" value="Ethnic">
+          <span class="custom-control-description">Split by ethnic</span>
+        </label>
+
+        <label class="ml-3 mr-sm-2 mb-sm-0 text-right"> Filters:</label>
+
         <label class="custom-control custom-checkbox mb-2 mr-sm-2 mb-sm-0">
           <input type="checkbox" class="valFilter form-check-input" value="LC" checked>
           <span class="custom-control-description">LC</span>
@@ -54,7 +66,7 @@
       <div class="col align-self-center text-center svg-area-to-save">
       <div id="sliders"></div>
 
-        <svg class="border" width="900" height="768"><g></g></svg>
+        <svg class="border" width="1000" height="750"><g></g></svg>
       </div>
     </div>
 </div>
@@ -64,7 +76,7 @@
 
 
 var duration_fade = 500;
-var width=900, height=768;
+var width=1000, height=750;
 
 
 // Read a page's GET URL variables and return them as an associative array.
@@ -127,28 +139,92 @@ function filter_plot() {
   // console.log(choices);
   // console.log(dataset);
 
+  var use_filter_group = [];
+  d3.selectAll(".valFilterGroup").each(function(d){
+    cb = d3.select(this);
+    if(cb.property("checked")){
+      use_filter_group.push(cb.property("value"));
+    }
+  });
+  // valFilterGroup
+  // console.log("Use gender: " + use_filter_group);
+
   var school_filter = d3.select("#schoolID").node().value;
   var is_school = school_filter != "";
+
   d3.csv(dataset, function(data) {
-    // console.log(data)
-    var entries_nest = d3.nest()
-    // .key(function(d) { return d.School; })
-    .key(function(d) { return JSON.stringify([
-                choices.includes("LC") ? d.LC : "-",
-                choices.includes("DLS") ? d.DLS : "-",
-                choices.includes("BA") ? d.BA : "-",
-                choices.includes("FS") ? d.FS : "-"
-                ]); })
-    .rollup(function(d) { return {count: d.length,
-                BA: d3.mean(d, function(v) { return v.BA; }),
-                LC: d3.mean(d, function(v) { return v.LC; }),
-                DLS: d3.mean(d, function(v) { return v.DLS; }),
-                FS: d3.mean(d, function(v) { return v.FS; }),
-                gender: d3.mean(d, function(v) { return v.gender; }),
-                ethnic: d3.mean(d, function(v) { return v.ethnic; })
-              }; })
-    .entries(is_school ? data.filter(function(c) {return c.School == school_filter}) : data);
+      // console.log(data)
+    var entries_nest;
+    if (use_filter_group.length == 0){
+      entries_nest = d3.nest()
+      // .key(function(d) { return d.Gender; })
+      .key(function(d) { return JSON.stringify([
+                  choices.includes("LC") ? d.LC : "-",
+                  choices.includes("DLS") ? d.DLS : "-",
+                  choices.includes("BA") ? d.BA : "-",
+                  choices.includes("FS") ? d.FS : "-"
+                  ]); })
+      .rollup(function(d) { return {count: d.length,
+                  BA: d3.mean(d, function(v) { return v.BA; }),
+                  LC: d3.mean(d, function(v) { return v.LC; }),
+                  DLS: d3.mean(d, function(v) { return v.DLS; }),
+                  FS: d3.mean(d, function(v) { return v.FS; })//,
+                  // gender: d3.mean(d, function(v) { return v.gender; }),
+                  // ethnic: d3.mean(d, function(v) { return v.ethnic; })
+                }; })
+      .entries(is_school ? data.filter(function(c) {return c.School == school_filter}) : data);
     // console.log(entries_nest);
+    } else {
+      entries_nest = d3.nest()
+        .key(function(d) { return JSON.stringify([
+                  use_filter_group.includes("Gender") ? d.Gender : "-",
+                  use_filter_group.includes("Ethnic") ? d.Ethnic : "-"
+                  ]); })
+        .key(function(d) { return JSON.stringify([
+                  choices.includes("LC") ? d.LC : "-",
+                  choices.includes("DLS") ? d.DLS : "-",
+                  choices.includes("BA") ? d.BA : "-",
+                  choices.includes("FS") ? d.FS : "-"
+                  ]); })
+        .rollup(function(d) { return {count: d.length,
+                  BA: d3.mean(d, function(v) { return v.BA; }),
+                  LC: d3.mean(d, function(v) { return v.LC; }),
+                  DLS: d3.mean(d, function(v) { return v.DLS; }),
+                  FS: d3.mean(d, function(v) { return v.FS; })//,
+                  // gender: d3.mean(d, function(v) { return v.gender; }),
+                  // ethnic: d3.mean(d, function(v) { return v.ethnic; })
+                }; })
+      .entries(is_school ? data.filter(function(c) {return c.School == school_filter}) : data);
+
+      var entries_gender = d3.nest()
+          .key(function(d) { return JSON.stringify([
+                  use_filter_group.includes("Gender") ? d.Gender : "-",
+                  use_filter_group.includes("Ethnic") ? d.Ethnic : "-"
+                  ]); })
+      .rollup(function(d) { return {count: d.length,
+                }; })
+      .entries(is_school ? data.filter(function(c) {return c.School == school_filter}) : data);
+      // console.log(entries_gender);
+
+      // Gender: 0: Female, 1: Male
+      var gender_str = ["Female", "Male"]
+      var ethnic_str = ["Other", "White British"]
+      entries_gender.forEach(
+                function(d, i) {
+                  var filter_keys = JSON.parse(d.key);
+                  if (filter_keys[0]!='-'){
+                    d.gender = gender_str[+filter_keys[0]];
+                  }
+                  if (filter_keys[1]!='-'){
+                    d.ethnic = ethnic_str[+filter_keys[1]];
+                  }
+                  d.name = d.key;
+                  d.value.n = choices.length;
+                  d.children = entries_nest[i].values;
+                });
+      entries_nest = entries_gender;
+    }
+
 
     var len_students = data.filter( function(c) { return is_school ? c.School == school_filter : true}).length
 
@@ -173,7 +249,17 @@ function filter_plot() {
     d3.transition()
       .duration(duration_fade)
       .on("end", function bla() {
-        updateGraph({"name": "A1", "value": {"count": len_students, "dimensions": choices, "n": choices.length} ,"children": entries_nest});
+        // updateGraph({"name": "A1", "value": {"count": len_students, "dimensions": choices, "n": choices.length} ,"children": entries_nest});
+        updateGraph({"name": "", "value": {"count": len_students, "filter_groups": use_filter_group, "dimensions": choices, "n": choices.length} ,"children": entries_nest});
+        // updateGraph(
+        //     {"name": "A1",
+        //      "value": {"count": 20, "dimensions": choices, "n": choices.length},
+        //      "children":
+        //             [{"name": "A2",
+        //              "value": {"count": 10, "dimensions": choices, "n": 8},
+        //              "children": entries_nest
+        //            }]
+        //     });
         // updateGraph({"name": "A1", "value": {"count": 0, "dimensions": choices, "n": choices.length} ,"children": entries_nest[0].values});
         // console.log("End transtion");
       });
@@ -186,22 +272,21 @@ function filter_plot() {
 
 
 function updateGraph(data) {
-  // console.log(data);
+  console.log(data);
 
   var packLayout = d3.pack()
-    .size([900, 768]);
+    .size([width, height]);
 
   var rootNode = d3.hierarchy(data)
 
   rootNode.sum(function(d) {
-    // console.log(d.key + " " + d.value.count)
     return d.value.count;
-    // return d.value["count"];
   });
   // console.log(rootNode)
   var n_students = rootNode.data.value.count;
   var n_dimensions = rootNode.data.value.n;
   var dimensions = rootNode.data.value.dimensions;
+  var filter_groups = rootNode.data.value.filter_groups;
 
   packLayout(rootNode);
 
@@ -213,6 +298,7 @@ function updateGraph(data) {
     .data(rootNode.descendants())
     .enter()
     .append('g')
+    .attr("class", function(d) { return d.children ? (d.parent ? "middleNode node" : "root node") : "leaf node"; })
     .attr('transform', function(d) {return 'translate(' + [d.x, d.y] + ')'})
 
   var i;
@@ -221,11 +307,12 @@ function updateGraph(data) {
     nodes
       .append('circle')
         .attr('r', function(d) { return d.r * radius_multiplier[n_dimensions-1][i]; })
-        .attr('class', function(d) { return d.children === undefined ? "inner" : "outer"; })
+        .attr('class', function(d) { return (d.children === undefined ? "inner" : "outer") + " " +
+                                            (radius_multiplier[n_dimensions-1][i] == 1 ? "biggest" : "smaller"); })
         // .style("fill", function(d) { return risk_cols[d.data.value.BA]; })
         .style("fill", function(d) { return risk_cols[d.data.value[dimensions[i]]]; })
         .style("opacity", 0)
-        .transition().duration(duration_fade).style("opacity", function (d) { return d.children === undefined ? 1 : 0; }); // set the
+        // .transition().duration(duration_fade).style("opacity", function (d) { return d.children === undefined ? 1 : 0; }); // set the
   }
 
   // nodes.transition().duration(duration_fade).style("opacity", function (d) { return d.children === undefined ? 1 : 0; }); // set the stroke opacity
@@ -239,13 +326,43 @@ function updateGraph(data) {
       return d.children === undefined ? d.data.value.count : '';
     })
 
+  nodes.selectAll(".leaf circle")
+      .transition().duration(duration_fade).style("opacity", 1);
+
+  nodes.selectAll(".middleNode .biggest")
+      .transition().duration(duration_fade).style("opacity", 0.5);
+
+  d3.selectAll(".middleNode")
+      .append('text')
+      .attr("text-anchor", "middle")
+      .attr("dy", function(d) { return d.r + 10; })
+      .style("opacity", 1)
+      .text(function(d) { return (d.data.gender ? d.data.gender + " " : " ") + (d.data.ethnic ? d.data.ethnic + " " : ""); })
+
+  nodes.selectAll(".middleNode .biggest")
+    .style("stroke", "black")    // set the line colour
+    .style("stroke-opacity", .2) // set the stroke opacity
+    .on("mouseover", function(d){
+            return tooltip.style("visibility", "visible").html(
+              "N: " + d.data.value.count + " (" + (d.data.value.count*100/n_students).toFixed(2) +"%)" +
+              (d.data.gender ? "<br> Gender: " + d.data.gender : "") +
+              (d.data.ethnic ? "<br> Ethnic: " + d.data.ethnic : ""));})
+    .on("mousemove", function(){return tooltip.style("top",
+        (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");})
+    .on("mouseout", function(){return tooltip.style("visibility", "hidden");});
+
+
+
   nodes.selectAll(".inner")
     // .attr("cx", function (d) { return 1.3 * d.n + 25; })
     // .attr("cy", function (d) { return 1.3 * d.n - 80; })
     .style("stroke", "black")    // set the line colour
     .style("stroke-opacity", .2) // set the stroke opacity
-    .on("mouseover", function(d){return d.children === undefined ? tooltip.style("visibility", "visible").html(
-              "N: " + d.value + " (" + (d.value*100/n_students).toFixed(2) +"%)" +
+    .on("mouseover", function(d){ console.log(d.parent.data);
+              return d.children === undefined ? tooltip.style("visibility", "visible").html(
+              "N: " + d.value + " "
+                     + (d.parent.data.name=="" ? "(" : " <br> (" + ((d.value*100/d.parent.data.value.count).toFixed(2) +"% of subset - ")) +
+                     + (d.value*100/n_students).toFixed(2) +"% of total)  " +
               (!dimensions.includes("LC") ? "": "<br> Language and Cognition: " + risk_text[d.data.value.LC]) +
               (!dimensions.includes("DLS") ? "": "<br> Daily Living Skills: " + risk_text[d.data.value.DLS]) +
               (!dimensions.includes("BA") ? "": "<br> Behavioral Adjustment: " + risk_text[d.data.value.BA]) +
@@ -258,15 +375,17 @@ function updateGraph(data) {
 filter_plot();
 
 d3.select("#schoolID").on("change", function() {
-  // console.log(this.value);
   filter_plot();
 });
 
 d3.selectAll(".valFilter").on("change",filter_plot);
+d3.selectAll(".valFilterGroup").on("change",filter_plot);
 
 
 
-
+// ######################################
+// ######################################
+// ######################################
 
 
 
