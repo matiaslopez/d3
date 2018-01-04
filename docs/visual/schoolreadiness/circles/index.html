@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <title>School readiness study</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+  <style>
+    circle {
+      fill: #333;
+      /*opacity: 0.3;*/
+      stroke: white;
+    }
+    </style>
+  <link rel="stylesheet" href="style.css">
+  <script src="FileSaver.min.js"></script>
+  </head>
+
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <a class="navbar-brand" href="#">School readiness study</a>
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <form class="form-inline">
+        <label class="mr-sm-2" for="custom-control-description">School-Teacher</label>
+          <select class="custom-select mb-2 mr-sm-2 mb-sm-0" id="schoolID"></select>
+
+        <label class="custom-control custom-checkbox mb-2 mr-sm-2 mb-sm-0">
+          <input type="checkbox" class="valFilterGroup form-check-input" value="Gender">
+          <span class="custom-control-description">Split by gender</span>
+        </label>
+        <label class="custom-control custom-checkbox mb-2 mr-sm-2 mb-sm-0">
+          <input type="checkbox" class="valFilterGroup form-check-input" value="Ethnic">
+          <span class="custom-control-description">Split by ethnic</span>
+        </label>
+
+        <label class="ml-3 mr-sm-2 mb-sm-0 text-right"> Filters:</label>
+
+        <label class="custom-control custom-checkbox mb-2 mr-sm-2 mb-sm-0 labelValFilter">
+          <input type="checkbox" class="valFilter form-check-input" value="LC" checked>
+          <span class="custom-control-description">LC</span>
+        </label>
+        <label class="custom-control custom-checkbox mb-2 mr-sm-2 mb-sm-0 labelValFilter">
+          <input type="checkbox" class="valFilter form-check-input" value="DLS" checked>
+          <span class="custom-control-description">DLS</span>
+        </label>
+        <label class="custom-control custom-checkbox mb-2 mr-sm-2 mb-sm-0 labelValFilter">
+          <input type="checkbox" class="valFilter form-check-input" value="BA" checked>
+          <span class="custom-control-description">BA</span>
+        </label>
+        <label class="custom-control custom-checkbox mb-2 mr-sm-2 mb-sm-0 labelValFilter">
+          <input type="checkbox" class="valFilter form-check-input" value="FS" checked>
+          <span class="custom-control-description">FS</span>
+        </label>
+    </form>
+  </div>
+    <form class="form-inline my-2 my-lg-0">
+      <input type="button" class="btn my-2 my-sm-0" id="saveButton" value="Download image">
+    </form>
+</nav>
+  <div class="container">
+    <div class="row spacer">&nbsp;</div>
+    <div class="row spacer">
+      <div class="col align-self-center text-center svg-area-to-save">
+      <div id="sliders"></div>
+
+        <svg class="border" width="1000" height="750"><g></g></svg>
+      </div>
+    </div>
+</div>
+
+  <script src="d3.v4.min.js"></script>
+  <script>
+
+
+var duration_fade = 500;
+var width=1000, height=750;
+
+
+// Read a page's GET URL variables and return them as an associative array.
+function getUrlVars()
+{
+    var vars = [], hash;
+    var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+    for(var i = 0; i < hashes.length; i++)
+    {
+        hash = hashes[i].split('=');
+        vars.push(hash[0]);
+        vars[hash[0]] = hash[1];
+    }
+    return vars;
+}
+
+var a = getUrlVars()
+var dataset = "all_data.csv"
+if (a.dataset !== undefined){
+  console.log("Dataset param: " + a.dataset);
+  dataset = a.dataset
+}
+
+// var risk_cols = ["#49E83E", "#FFD432", "#E84B30"]
+// var risk_cols = ["#58c686", "#f9d067", "#ef5d47"]
+// var risk_cols = ["#0c946a", "#f9d067", "#ef5d47"]
+// var risk_cols = ["#0c946a", "#ffe46e", "#ef5d47"]
+// var risk_cols = ["#0c946a", "#F0C44F", "#E63434"]
+// var risk_cols = ["#079600", "#FFFA00", "#F30026"]
+var risk_cols = ["#079600", "#FFD432", "#F30026"]
+var risk_text = ["Green", "Amber", "Red"]
+// var radius_multiplier = [[1], [1,0.5], [1,0.7,0.33], [1,0.77,0.55,0.3]]
+var radius_multiplier = [[1], [0.5,1], [0.33,0.7,1], [0.3, 0.55, 0.77,1]]
+
+d3.select('svg g')
+    .append("rect")
+      .attr("width", "100%")
+      .attr("height", "100%")
+      .attr("fill", "white");
+
+
+var tooltip = d3.select("body")
+  .append("div")
+  .attr("class", "ownTooltip")
+  .style("position", "absolute")
+  .style("z-index", "10")
+  .style("visibility", "hidden")
+  .text("a simple tooltip");
+
+
+function filter_plot() {
+  var choices = [];
+  // console.log("SchoolID: " + d3.select("#schoolID").value);
+  d3.selectAll(".valFilter").each(function(d){
+    cb = d3.select(this);
+    if(cb.property("checked")){
+      choices.push(cb.property("value"));
+    }
+  });
+  // console.log(choices);
+  // console.log(dataset);
+
+  var use_filter_group = [];
+  d3.selectAll(".valFilterGroup").each(function(d){
+    cb = d3.select(this);
+    if(cb.property("checked")){
+      use_filter_group.push(cb.property("value"));
+    }
+  });
+  // valFilterGroup
+  // console.log("Use gender: " + use_filter_group);
+
+  var school_filter = d3.select("#schoolID").node().value;
+  var is_school = school_filter != "";
+
+  d3.csv(dataset, function(data) {
+      // console.log(data)
+    var entries_nest;
+    if (use_filter_group.length == 0){
+      entries_nest = d3.nest()
+      // .key(function(d) { return d.Gender; })
+      .key(function(d) { return JSON.stringify([
+                  choices.includes("LC") ? d.LC : "-",
+                  choices.includes("DLS") ? d.DLS : "-",
+                  choices.includes("BA") ? d.BA : "-",
+                  choices.includes("FS") ? d.FS : "-"
+                  ]); })
+      .rollup(function(d) { return {count: d.length,
+                  BA: d3.mean(d, function(v) { return v.BA; }),
+                  LC: d3.mean(d, function(v) { return v.LC; }),
+                  DLS: d3.mean(d, function(v) { return v.DLS; }),
+                  FS: d3.mean(d, function(v) { return v.FS; })//,
+                  // gender: d3.mean(d, function(v) { return v.gender; }),
+                  // ethnic: d3.mean(d, function(v) { return v.ethnic; })
+                }; })
+      .entries(is_school ? data.filter(function(c) {return c.School == school_filter}) : data);
+    // console.log(entries_nest);
+    } else {
+      entries_nest = d3.nest()
+        .key(function(d) { return JSON.stringify([
+                  use_filter_group.includes("Gender") ? d.Gender : "-",
+                  use_filter_group.includes("Ethnic") ? d.Ethnic : "-"
+                  ]); })
+        .key(function(d) { return JSON.stringify([
+                  choices.includes("LC") ? d.LC : "-",
+                  choices.includes("DLS") ? d.DLS : "-",
+                  choices.includes("BA") ? d.BA : "-",
+                  choices.includes("FS") ? d.FS : "-"
+                  ]); })
+        .rollup(function(d) { return {count: d.length,
+                  BA: d3.mean(d, function(v) { return v.BA; }),
+                  LC: d3.mean(d, function(v) { return v.LC; }),
+                  DLS: d3.mean(d, function(v) { return v.DLS; }),
+                  FS: d3.mean(d, function(v) { return v.FS; })//,
+                  // gender: d3.mean(d, function(v) { return v.gender; }),
+                  // ethnic: d3.mean(d, function(v) { return v.ethnic; })
+                }; })
+      .entries(is_school ? data.filter(function(c) {return c.School == school_filter}) : data);
+
+      var entries_gender = d3.nest()
+          .key(function(d) { return JSON.stringify([
+                  use_filter_group.includes("Gender") ? d.Gender : "-",
+                  use_filter_group.includes("Ethnic") ? d.Ethnic : "-"
+                  ]); })
+      .rollup(function(d) { return {count: d.length,
+                }; })
+      .entries(is_school ? data.filter(function(c) {return c.School == school_filter}) : data);
+      // console.log(entries_gender);
+
+      // Gender: 0: Female, 1: Male
+      var gender_str = ["Female", "Male"]
+      var ethnic_str = ["Other", "White British"]
+      entries_gender.forEach(
+                function(d, i) {
+                  var filter_keys = JSON.parse(d.key);
+                  if (filter_keys[0]!='-'){
+                    d.gender = gender_str[+filter_keys[0]];
+                  }
+                  if (filter_keys[1]!='-'){
+                    d.ethnic = ethnic_str[+filter_keys[1]];
+                  }
+                  d.name = d.key;
+                  d.value.n = choices.length;
+                  d.children = entries_nest[i].values;
+                });
+      entries_nest = entries_gender;
+    }
+
+
+    var len_students = data.filter( function(c) { return is_school ? c.School == school_filter : true}).length
+
+    var school_ids = d3.nest()
+    .key(function(d) { return d.School; })
+    .sortKeys(function(a,b) { return (+a.split("-")[0]) - (+b.split("-")[0]); })
+    .rollup(function(d) { return d[0]["School"] + " (" +  d.length + " students)";})
+    .entries(data);
+
+    var select = d3.select('#schoolID');
+    var options = select
+      .selectAll('option')
+      .data([{key: "", value: "All (" +  len_students + " students)"}].concat(school_ids)).enter()
+        .append('option')
+        .attr("value", function (d) { return d.key; })
+        .text(function (d) { return d.value; });
+
+    // console.log(choices.length);
+    tooltip.style("visibility", "hidden");
+
+    d3.select('svg g').selectAll('g').transition().duration(duration_fade).style("opacity", 1e-6).remove();
+    d3.transition()
+      .duration(duration_fade)
+      .on("end", function bla() {
+        // updateGraph({"name": "A1", "value": {"count": len_students, "dimensions": choices, "n": choices.length} ,"children": entries_nest});
+        updateGraph({"name": "", "value": {"count": len_students, "filter_groups": use_filter_group, "dimensions": choices, "n": choices.length} ,"children": entries_nest});
+        // updateGraph(
+        //     {"name": "A1",
+        //      "value": {"count": 20, "dimensions": choices, "n": choices.length},
+        //      "children":
+        //             [{"name": "A2",
+        //              "value": {"count": 10, "dimensions": choices, "n": 8},
+        //              "children": entries_nest
+        //            }]
+        //     });
+        // updateGraph({"name": "A1", "value": {"count": 0, "dimensions": choices, "n": choices.length} ,"children": entries_nest[0].values});
+        // console.log("End transtion");
+      });
+  });
+}
+
+
+
+
+
+
+function updateGraph(data) {
+  // console.log(data);
+
+  var packLayout = d3.pack()
+    .size([width, height]);
+
+  var rootNode = d3.hierarchy(data)
+
+  rootNode.sum(function(d) {
+    return d.value.count;
+  });
+  // console.log(rootNode)
+  var n_students = rootNode.data.value.count;
+  var n_dimensions = rootNode.data.value.n;
+  var dimensions = rootNode.data.value.dimensions;
+  var filter_groups = rootNode.data.value.filter_groups;
+
+  packLayout(rootNode);
+
+
+  // d3.select('svg g').selectAll('g').transition().duration(duration_fade).style("opacity", 1e-6).remove();
+
+  var nodes = d3.select('svg g')
+    .selectAll('g')
+    .data(rootNode.descendants())
+    .enter()
+    .append('g')
+    .attr("class", function(d) { return d.children ? (d.parent ? "middleNode node" : "root node") : "leaf node"; })
+    .attr('transform', function(d) {return 'translate(' + [d.x, d.y] + ')'})
+
+  var i;
+  for (i = n_dimensions-1; i >= 0; i--) {
+    // console.log( radius_multiplier[n_dimensions-1][i] + " " + dimensions[i])
+    nodes
+      .append('circle')
+        .attr('r', function(d) { return d.r * radius_multiplier[n_dimensions-1][i]; })
+        .attr('class', function(d) { return (d.children === undefined ? "inner" : "outer") + " " +
+                                            (radius_multiplier[n_dimensions-1][i] == 1 ? "biggest" : "smaller"); })
+        // .style("fill", function(d) { return risk_cols[d.data.value.BA]; })
+        .style("fill", function(d) { return risk_cols[d.data.value[dimensions[i]]]; })
+        .style("opacity", 0)
+        // .transition().duration(duration_fade).style("opacity", function (d) { return d.children === undefined ? 1 : 0; }); // set the
+  }
+
+  // nodes.transition().duration(duration_fade).style("opacity", function (d) { return d.children === undefined ? 1 : 0; }); // set the stroke opacity
+
+  nodes
+    .append('text')
+    .attr("text-anchor", "middle")
+    .attr("dy", ".35em")
+    .style("opacity", 1)
+    .text(function(d) {
+      return d.children === undefined ? d.data.value.count : '';
+    })
+
+  nodes.selectAll(".leaf circle")
+      .transition().duration(duration_fade).style("opacity", 1);
+
+  nodes.selectAll(".middleNode .biggest")
+      .transition().duration(duration_fade).style("opacity", 0.25);
+
+  d3.selectAll(".middleNode")
+      .append('text')
+      .attr("text-anchor", "middle")
+      .attr("dy", function(d) { return d.r + 10; })
+      .style("opacity", 1)
+      .text(function(d) { return (d.data.gender ? d.data.gender + " " : " ") + (d.data.ethnic ? d.data.ethnic + " " : ""); })
+
+  nodes.selectAll(".middleNode .biggest")
+    .style("stroke", "black")    // set the line colour
+    .style("stroke-opacity", .2) // set the stroke opacity
+    .on("mouseover", function(d){
+            return tooltip.style("visibility", "visible").html(
+              "N: " + d.data.value.count + " (" + (d.data.value.count*100/n_students).toFixed(2) +"%)" +
+              (d.data.gender ? "<br> Gender: " + d.data.gender : "") +
+              (d.data.ethnic ? "<br> Ethnic: " + d.data.ethnic : ""));})
+    .on("mousemove", function(){return tooltip.style("top",
+        (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");})
+    .on("mouseout", function(){return tooltip.style("visibility", "hidden");});
+
+
+
+  nodes.selectAll(".inner")
+    // .attr("cx", function (d) { return 1.3 * d.n + 25; })
+    // .attr("cy", function (d) { return 1.3 * d.n - 80; })
+    .style("stroke", "black")    // set the line colour
+    .style("stroke-opacity", .2) // set the stroke opacity
+    .on("mouseover", function(d){ //console.log(d.parent.data);
+              return d.children === undefined ? tooltip.style("visibility", "visible").html(
+              "N: " + d.value + " "
+                     + (d.parent.data.name=="" ? "(" : " <br> (" + ((d.value*100/d.parent.data.value.count).toFixed(2) +"% of subset - ")) +
+                     + (d.value*100/n_students).toFixed(2) +"% of total)  " +
+              (!dimensions.includes("LC") ? "": "<br> Language and Cognition: " + risk_text[d.data.value.LC]) +
+              (!dimensions.includes("DLS") ? "": "<br> Daily Living Skills: " + risk_text[d.data.value.DLS]) +
+              (!dimensions.includes("BA") ? "": "<br> Behavioral Adjustment: " + risk_text[d.data.value.BA]) +
+              (!dimensions.includes("FS") ? "": "<br> Family Support: " + risk_text[d.data.value.FS])): 0;})
+    .on("mousemove", function(){return tooltip.style("top",
+        (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");})
+    .on("mouseout", function(){return tooltip.style("visibility", "hidden");});
+  tooltip.style("visibility", "hidden");
+}
+filter_plot();
+
+d3.select("#schoolID").on("change", function() {
+  filter_plot();
+});
+
+d3.selectAll(".valFilter").on("change",filter_plot);
+d3.selectAll(".valFilterGroup").on("change",filter_plot);
+
+  d3.selectAll(".labelValFilter")
+    .on("mouseover", function(d){ console.log("HA"); return "Hola";})
+    .on("mousemove", function(){return tooltip.style("top",
+        // (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");})
+        100+"px").style("left",100+"px");})
+    .on("mouseout", function(){return tooltip.style("visibility", "hidden");});
+  tooltip.style("visibility", "hidden");
+// ######################################
+// ######################################
+// ######################################
+
+
+
+d3.select("#saveButton")
+    .on('click', function(q){
+      console.log("Saving...");
+      var svgString = getSVGString(d3.selectAll(".svg-area-to-save").selectAll("svg").node());
+      svgString2Image( svgString, 2*width, 2*height, 'png', save ); // passes Blob and filesize String to the callback
+      function save( dataBlob, filesize ){
+        // console.log(data);
+
+        var school_filter = d3.select("#schoolID").node().value;
+        var school_tag = school_filter != ""? "school_"+school_filter: "allSchools";
+
+        var choices = []
+        d3.selectAll(".valFilter").each(function(d){
+          cb = d3.select(this);
+          if(cb.property("checked")){
+            choices.push(cb.property("value"));
+          }
+        });
+
+        saveAs( dataBlob, 'schoolreadiness_' +school_tag+'_' + choices.join("-") + '.png' ); // FileSaver.js function
+      }
+    });
+
+
+function getSVGString( svgNode ) {
+  svgNode.setAttribute('xlink', 'http://www.w3.org/1999/xlink');
+  var cssStyleText = getCSSStyles( svgNode );
+  appendCSS( cssStyleText, svgNode );
+
+  var serializer = new XMLSerializer();
+  var svgString = serializer.serializeToString(svgNode);
+  svgString = svgString.replace(/(\w+)?:?xlink=/g, 'xmlns:xlink='); // Fix root xlink without namespace
+  svgString = svgString.replace(/NS\d+:href/g, 'xlink:href'); // Safari NS namespace fix
+
+  return svgString;
+
+  function getCSSStyles( parentElement ) {
+    var selectorTextArr = [];
+
+    // Add Parent element Id and Classes to the list
+    selectorTextArr.push( '#'+parentElement.id );
+    for (var c = 0; c < parentElement.classList.length; c++)
+        if ( !contains('.'+parentElement.classList[c], selectorTextArr) )
+          selectorTextArr.push( '.'+parentElement.classList[c] );
+
+    // Add Children element Ids and Classes to the list
+    var nodes = parentElement.getElementsByTagName("*");
+    for (var i = 0; i < nodes.length; i++) {
+      var id = nodes[i].id;
+      if ( !contains('#'+id, selectorTextArr) )
+        selectorTextArr.push( '#'+id );
+
+      var classes = nodes[i].classList;
+      for (var c = 0; c < classes.length; c++)
+        if ( !contains('.'+classes[c], selectorTextArr) )
+          selectorTextArr.push( '.'+classes[c] );
+    }
+
+    // Extract CSS Rules
+    var extractedCSSText = "";
+    for (var i = 0; i < document.styleSheets.length; i++) {
+      var s = document.styleSheets[i];
+
+      try {
+          if(!s.cssRules) continue;
+      } catch( e ) {
+            if(e.name !== 'SecurityError') throw e; // for Firefox
+            continue;
+          }
+
+      var cssRules = s.cssRules;
+      for (var r = 0; r < cssRules.length; r++) {
+        if ( contains( cssRules[r].selectorText, selectorTextArr ) )
+          extractedCSSText += cssRules[r].cssText;
+      }
+    }
+
+
+    return extractedCSSText;
+
+    function contains(str,arr) {
+      return arr.indexOf( str ) === -1 ? false : true;
+    }
+
+  }
+
+  function appendCSS( cssText, element ) {
+    var styleElement = document.createElement("style");
+    styleElement.setAttribute("type","text/css");
+    styleElement.innerHTML = cssText;
+    var refNode = element.hasChildNodes() ? element.children[0] : null;
+    element.insertBefore( styleElement, refNode );
+  }
+}
+
+function svgString2Image( svgString, width, height, format, callback ) {
+  var format = format ? format : 'png';
+
+  var imgsrc = 'data:image/svg+xml;base64,'+ btoa( unescape( encodeURIComponent( svgString ) ) ); // Convert SVG string to data URL
+
+  var canvas = document.createElement("canvas");
+  var context = canvas.getContext("2d");
+
+  canvas.width = width;
+  canvas.height = height;
+
+  var image = new Image();
+  image.onload = function() {
+    context.clearRect ( 0, 0, width, height );
+    context.drawImage(image, 0, 0, width, height);
+
+    canvas.toBlob( function(blob) {
+      var filesize = Math.round( blob.length/1024 ) + ' KB';
+      if ( callback ) callback( blob, filesize );
+    });
+
+
+  };
+
+  image.src = imgsrc;
+}
+
+
+  </script>
+</body>
+</html>
