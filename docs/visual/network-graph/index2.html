@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<body>
+    <div class="slider_selector">
+  <p style="text-align:center;">
+    <label for="step_val"
+           style="display: inline-block; width: 150px; text-align: center;">
+           Alpha filter <span id="step_val-value">...</span>
+    </label>
+      <input class="slider_selector" type="range" min="0" max="1" step="0.05" id="step_val">
+      </p>
+    </div>
+<svg width="800" height="600"></svg>
+
+<script>
+var svg = d3.select("svg"),
+    width = +svg.attr("width"),
+    height = +svg.attr("height"),
+    color = d3.scaleOrdinal(d3.schemeCategory10);
+var a = {id: "a"},
+    b = {id: "b"},
+    c = {id: "c"},
+    d = {id: "d"},
+    nodes = [d, a, b, c],
+    label = [];
+    links = [];
+
+var simulation, g, link, node;
+
+d3.json("data.json", function(error, graph) {
+  if (error) throw error;
+  // console.log(graph.nodes);
+  // links = graph.links;
+  nodes = graph.nodes;
+  links = graph.links;
+
+  simulation = d3.forceSimulation(nodes)
+    .force("charge", d3.forceManyBody().strength(-1000))
+    .force("link", d3.forceLink(links).distance(function (d) {return 100 * d.weight;}))
+    .force("x", d3.forceX())
+    .force("y", d3.forceY())
+    // .alphaTarget(1)
+    .on("tick", ticked);
+
+
+  g = svg.append("g").attr("transform", "translate(" + width / 2 + "," + height / 2 + ")"),
+  link = g.append("g").attr("stroke", "#000").attr("stroke-width", 1.5).selectAll(".link"),
+  node = g.append("g").attr("stroke", "#fff").attr("stroke-width", 1.5).selectAll(".node");
+  label = g.append("g").selectAll(".label");
+
+
+  d3.select("#step_val").property("value", 0);
+  d3.select("#step_val-value").text(0);
+  restart(0);
+
+})
+
+
+d3.select("#step_val").on("input", function() {
+  // console.log(this.value);
+  d3.select("#step_val-value").text(this.value);
+  restart(this.value)
+});
+
+// d3.timeout(function() {
+  // links.push({source: 0, target: 1}); // Add a-b.
+  // links.push({source: 1, target: 2}); // Add b-c.
+  // links.push({source: 2, target: 0}); // Add c-a.
+  // console.log(links)
+  // restart();
+// }, 1000);
+
+// d3.interval(function() {
+//   nodes.pop(); // Remove c.
+//   links.pop(); // Remove c-a.
+//   // links.pop(); // Remove b-c.
+//   restart();
+// }, 2000, d3.now());
+
+// d3.interval(function() {
+//   nodes.push(c); // Re-add c.
+//   // links.push({source: 1, target: 2}); // Re-add b-c.
+//   links.push({source: 1, target: 0}); // Re-add c-a.
+//   restart();
+// }, 2000, d3.now() + 1000);
+
+function restart(alpha_idx) {
+  // Apply the general update pattern to the nodes.
+  node = node.data(nodes, function(d) { return d.id;});
+  node.exit().remove();
+  node = node.enter().append("circle").attr("fill", function(d) { return color(d.id); }).attr("r", 8)
+        .call(d3.drag()
+            .on("start", dragstarted)
+            .on("drag", dragged)
+            .on("end", dragended))
+        .merge(node);
+  // node = node.enter().append("text").text(function(d) { return "-" + d.id; }).merge(node);
+  // Apply the general update pattern to the labels.
+  // Apply the general update pattern to the links.
+  link = link.data(links.filter(function (d) { return d.weight>alpha_idx;}), function(d) { return d.source + "-" + d.target; })
+
+  // link = link.data(links, function(d) { return d.source.id + "-" + d.target.id; });
+  link.exit().remove();
+  link = link.enter().append("line").merge(link);
+  // Update and restart the simulation.
+  simulation.nodes(nodes);
+  simulation.force("link").links(links.filter(function (d) { return d.weight>alpha_idx;}));
+  // simulation.force("link", d3.forceLink(link).distance(function (d) {return 100 * d.weight;}))
+  simulation.alpha(1).restart();
+}
+
+function ticked() {
+  node.attr("cx", function(d) { return d.x; })
+      .attr("cy", function(d) { return d.y; })
+  link.attr("x1", function(d) { return d.source.x; })
+      .attr("y1", function(d) { return d.source.y; })
+      .attr("x2", function(d) { return d.target.x; })
+      .attr("y2", function(d) { return d.target.y; });
+  label
+      .attr("x", function(d) { return d.x; })
+      .attr("y", function (d) { return d.y; });
+}
+
+function dragstarted(d) {
+  if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+  d.fx = d.x;
+  d.fy = d.y;
+}
+
+function dragged(d) {
+  d.fx = d3.event.x;
+  d.fy = d3.event.y;
+}
+
+function dragended(d) {
+  if (!d3.event.active) simulation.alphaTarget(0);
+  d.fx = null;
+  d.fy = null;
+}
+</script>
