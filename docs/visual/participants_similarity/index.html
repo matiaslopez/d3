@@ -34,11 +34,14 @@
   <div class="container">
     <div class="row spacer">&nbsp;</div>
     <div class="row spacer">
-      <div class="col align-self-center text-center">
-        <div id="sliders"></div>
+      <div class="col align-self-center">
+        <div id="chkTrials"></div>
       </div>
       <div class="col align-self-center text-center svg-area-to-save">
-        <svg class="border" width="1000" height="750"><g></g></svg>
+        <svg class="border" width="800" height="750"><g></g></svg>
+      </div>
+      <div class="col align-self-center">
+        <div id="chkSubjs"></div>
       </div>
     </div>
 </div>
@@ -87,14 +90,25 @@ function parseTrialResult(t) {
   return parseInt(t);
 }
 
+var filter_users = [];
+var trials = [];
 function groupUsers(data) {
-  var trials = [];
+  filter_users = [];
+  trials = [];
   d3.selectAll(".levelSelector").each(function(d){
     cb = d3.select(this);
     if(cb.property("checked")){
       trials.push(parseInt(cb.property("value")));
       }
   });
+
+  d3.selectAll(".userSelector").each(function(d){
+    cb = d3.select(this);
+    if(cb.property("checked")){
+      filter_users.push(cb.property("value"));
+      }
+  });
+
   var groups = {}
   var usernames = {};
   // usernames.len = {len: 0};
@@ -130,10 +144,13 @@ function groupUsers(data) {
                                   usernames[d].trial_performance[t]: 0);
 
     });
-    trial_str.push({ username: d,
+    if (filter_users.indexOf(d)>=0) {
+      trial_str.push({ username: d,
                      res: usernames[d].trial_str,
                      trial_won: usernames[d].trial_won,
                      score: usernames[d].score})
+    }
+
   });
 
   var trial_str_nest = d3.nest()
@@ -145,7 +162,7 @@ function groupUsers(data) {
       .entries(trial_str);
 
   var circles_shape_data = {"name": "",
-                            "value": {"count": Object.keys(usernames).length},
+                            "value": {"count": filter_users.length},
                             "children": trial_str_nest}
 
   // color = d3.scaleLinear().domain([d3.min(trials)-1,d3.max(trials)+1]).range(["red", "green"])
@@ -160,12 +177,12 @@ function groupUsers(data) {
   console.log('end of groupUsers');
 }
 
-function addSliders(data, trials){
-  var pSliders = d3.select('#sliders')
+function addChecks(data, trials, users){
+  var pChkTrials = d3.select('#chkTrials')
   .selectAll('p')
   .data(trials).enter()
   .append('p');
-  var selects = pSliders
+  var selects = pChkTrials
   .append("input")
     .attr('type','checkbox')
     .attr('class','levelSelector')
@@ -178,11 +195,35 @@ function addSliders(data, trials){
         groupUsers(data);
         // updateSlider(name,this.value);
       })
-  pSliders
+  pChkTrials
   .append('label')
-    .attr('class', 'sliderLabel')
+    .attr('class', 'trialLabel')
     .attr('for', function (d) { return d; })
     .text(function (d) { return "Trial "+d; });
+
+  var pChkSubj = d3.select('#chkSubjs')
+  .selectAll('p')
+  .data(users).enter()
+  .append('p');
+  var selects = pChkSubj
+  .append("input")
+    .attr('type','checkbox')
+    .attr('class','userSelector')
+    .property("checked", true)
+    .attr('name',function (d) { return d; })
+    .attr('value',function (d) { return d; })
+    .attr('id', function (d) { return d; })
+    .on('change', function (name) {
+        console.log('checkbox changed');
+        groupUsers(data);
+        // updateSlider(name,this.value);
+      })
+  pChkSubj
+  .append('label')
+    .attr('class', 'userLabel')
+    .attr('for', function (d) { return d; })
+    .text(function (d) { return d; });
+
 
 }
 
@@ -276,15 +317,19 @@ var tooltip = d3.select("body")
 function generateRelations() {
   var raw = document.getElementById("inputCSV").value;
   data = d3.csvParse(raw);
-  q = data.map((trial, idx, data) => {return parseInt(trial.trial_number)});
-  q = q.filter(function(item, pos, self) { return self.indexOf(item) == pos; })
+  trial_ids = data.map((trial, idx, data) => {return parseInt(trial.trial_number)});
+  trial_ids = trial_ids.filter(function(item, pos, self) { return self.indexOf(item) == pos; })
+        .sort(function(a, b) { return a - b; });
+
+  user_ids = data.map((item, idx, data) => {return item.username});
+  user_ids = user_ids.filter(function(item, pos, self) { return self.indexOf(item) == pos; })
         .sort(function(a, b) { return a - b; });
 
   // color = d3.scaleLinear().domain([0,10]).range(["red", "yellow", "green"])
 
-  addSliders(data, q);
-  groupUsers(data, q)
-  console.log(q)
+  addChecks(data, trial_ids, user_ids);
+  groupUsers(data, trial_ids)
+  console.log(trial_ids)
 }
 
 
@@ -298,7 +343,7 @@ d3.text("data_reduced.csv", function(text) {
 
 var duration_fade = 500;
 var color;
-var width=1000, height=750;
+var width=800, height=750;
 
 
 // Read a page's GET URL variables and return them as an associative array.
