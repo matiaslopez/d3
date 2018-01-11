@@ -8,7 +8,7 @@
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
-  <style>
+    <style>
     </style>
   <link rel="stylesheet" href="style.css">
   <script src="FileSaver.min.js"></script>
@@ -34,13 +34,19 @@
   <div class="container">
     <div class="row spacer">&nbsp;</div>
     <div class="row spacer">
-      <div class="col align-self-center">
+      <div class="col">
+        <div class="row spacer">
+          <h4><input type="checkbox" id="trialsAll" checked="true"> Trials</h4>
+        </div>
         <div id="chkTrials"></div>
       </div>
-      <div class="col align-self-center text-center svg-area-to-save">
+      <div class="col text-center svg-area-to-save">
         <svg class="border" width="800" height="750"><g></g></svg>
       </div>
-      <div class="col align-self-center">
+      <div class="col">
+        <div class="row spacer">
+          <h4><input type="checkbox" id="participantsAll" checked="true"> Participants</h4>
+        </div>
         <div id="chkSubjs"></div>
       </div>
     </div>
@@ -80,6 +86,10 @@
   <script>
 
 
+function transformUserNameInValid(t) {
+  return t.replace(".","-");
+}
+
 function parseTrialResult(t) {
   if (t == "trialWon") {
     return 1;
@@ -92,6 +102,7 @@ function parseTrialResult(t) {
 
 var filter_users = [];
 var trials = [];
+
 function groupUsers(data) {
   filter_users = [];
   trials = [];
@@ -148,6 +159,7 @@ function groupUsers(data) {
       trial_str.push({ username: d,
                      res: usernames[d].trial_str,
                      trial_won: usernames[d].trial_won,
+                     trial_dict: usernames[d].trial_performance,
                      score: usernames[d].score})
     }
 
@@ -155,8 +167,10 @@ function groupUsers(data) {
 
   var trial_str_nest = d3.nest()
       .key(function(d) { return d.res})
+      // .key(function(d) { return d.won})
       .rollup(function(d) { return {count: d.length,
             won: d3.mean(d, function(v) { return v.trial_won; }),
+            trial_dict: d[0].trial_dict,
             subjs_id: d.map((item) => {return item.username;})}; })
       // q = data.map((trial, idx, data) => {return parseInt(trial.trial_number)});
       .entries(trial_str);
@@ -169,15 +183,20 @@ function groupUsers(data) {
   color = d3.scaleLinear().domain([0,trials.length]).range(["red", "green"])
 
   d3.select('svg g').selectAll('g').transition().duration(duration_fade).style("opacity", 1e-6).remove();
+  restore_trials_and_subjects(0)
   d3.transition()
     .duration(duration_fade)
     .on("end", function bla() {
         generateCircles(circles_shape_data)
       });
-  console.log('end of groupUsers');
+  // console.log('end of groupUsers');
 }
 
 function addChecks(data, trials, users){
+  d3.select('#chkTrials')
+  .selectAll('p').remove()
+  d3.select('#chkSubjs')
+  .selectAll('p').remove()
   var pChkTrials = d3.select('#chkTrials')
   .selectAll('p')
   .data(trials).enter()
@@ -193,13 +212,26 @@ function addChecks(data, trials, users){
     .on('change', function (name) {
         console.log('checkbox changed');
         groupUsers(data);
-        // updateSlider(name,this.value);
+        d3.select("#trialsAll").property("checked", true)
+        d3.selectAll(".levelSelector").each(function(d){
+          if(!d3.select(this).property("checked")){
+              d3.select("#trialsAll").property("checked", false)
+            }
+          });
       })
   pChkTrials
   .append('label')
-    .attr('class', 'trialLabel')
-    .attr('for', function (d) { return d; })
+    // .attr('class', 'trialLabel redTxt')
+    .attr('class', function (d) { return "trial-"+d ; })
+    .attr('id', function (d) { return "trial-"+d ; })
+    // .attr('for', function (d) { return d; })
     .text(function (d) { return "Trial "+d; });
+
+  d3.select("#trialsAll").on("change", function() {
+    d3.selectAll(".levelSelector")
+     .property("checked", this.checked)
+      groupUsers(data);
+    });
 
   var pChkSubj = d3.select('#chkSubjs')
   .selectAll('p')
@@ -216,15 +248,56 @@ function addChecks(data, trials, users){
     .on('change', function (name) {
         console.log('checkbox changed');
         groupUsers(data);
-        // updateSlider(name,this.value);
+        d3.select("#participantsAll").property("checked", true)
+        d3.selectAll(".userSelector").each(function(d){
+          if(!d3.select(this).property("checked")){
+              d3.select("#participantsAll").property("checked", false)
+            }
+          });
       })
   pChkSubj
   .append('label')
     .attr('class', 'userLabel')
-    .attr('for', function (d) { return d; })
+    .attr('class', function (d) { return 'user' + transformUserNameInValid(d);} )
+    // .attr('for', function (d) { return d; })
     .text(function (d) { return d; });
 
+  d3.select("#participantsAll").on("change", function() {
+    d3.selectAll(".userSelector")
+     .property("checked", this.checked)
+      groupUsers(data);
+    });
+}
 
+function color_trials_and_subjects(data_tooltip){
+  data_tooltip.data.value.subjs_id.forEach(function(d) {
+    d3.selectAll(".user" + transformUserNameInValid(d))
+      .classed("boldTxt", true)
+  })
+
+  obj = data_tooltip.data.value.trial_dict
+  Object.keys(obj).forEach(function(key) {
+    qq = d3.selectAll("#trial-" + key)
+
+    if (obj[key]===null) {
+      qq.classed("greyTxt", true)
+    } else if (obj[key]==1) {
+      qq.classed("greenTxt", true)
+    } else{
+      qq.classed("redTxt", true)
+    }
+  });
+}
+
+function restore_trials_and_subjects(data_tooltip){
+    d3.selectAll(".redTxt")
+      .classed("redTxt", false)
+    d3.selectAll(".greenTxt")
+      .classed("greenTxt", false)
+    d3.selectAll(".boldTxt")
+      .classed("boldTxt", false)
+    d3.selectAll(".greyTxt")
+      .classed("greyTxt", false)
 }
 
 
@@ -285,12 +358,13 @@ function generateCircles(data) {
     .style("stroke", "black")    // set the line colour
     .style("stroke-opacity", .2) // set the stroke opacity
     .on("mouseover", function(d){ //console.log(d.parent.data);
+              color_trials_and_subjects(d);
               return d.children === undefined ? tooltip.style("visibility", "visible").html(
               "Performance: " + d.data.key + "<BR/>" +
               "Subjects: <BR/>" + d.data.value.subjs_id.join("<BR/>")): 0;})
     .on("mousemove", function(){return tooltip.style("top",
         (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");})
-    .on("mouseout", function(){return tooltip.style("visibility", "hidden");});
+    .on("mouseout", function(d){ restore_trials_and_subjects(d); return tooltip.style("visibility", "hidden");});
   tooltip.style("visibility", "hidden");
 
 }
@@ -329,7 +403,6 @@ function generateRelations() {
 
   addChecks(data, trial_ids, user_ids);
   groupUsers(data, trial_ids)
-  console.log(trial_ids)
 }
 
 
@@ -368,6 +441,10 @@ if (a.dataset !== undefined){
 }
 
 
+
+
+
+// participantsAll
 
 
 

@@ -28,3 +28,23 @@ div.ownTooltip {
     border-radius: 8px;
     pointer-events: none;
 }
+
+label.redTxt {
+    color: red;
+    font-weight: bold;
+    font-size: 125%;
+}
+label.greenTxt {
+    color: green;
+    font-weight: bold;
+    font-size: 125%;
+}
+label.greyTxt {
+    color: grey;
+    font-weight: bold;
+    font-size: 125%;
+}
+label.boldTxt {
+    font-weight: bold;
+    font-size: 125%;
+}
