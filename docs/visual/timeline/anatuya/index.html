@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Children evolution</title>
+    <script src="d3.v3.min.js"></script>
+<!--    <script src="//cdn.rawgit.com/newrelic-forks/d3-plugins-sankey/master/sankey.js"></script>
+    <script src="//cdn.rawgit.com/misoproject/d3.chart/master/d3.chart.min.js"></script>
+    <script src="//cdn.rawgit.com/q-m/d3.chart.sankey/master/d3.chart.sankey.min.js"></script>-->
+    <script src="sankey.js"></script>
+    <script src="d3.chart.min.js"></script>
+    <script src="d3.chart.sankey.min.js"></script>
+    <style>
+      body {
+        padding: 10px;
+        min-width: 600px;
+        max-width: 1200px;
+        margin: auto;
+        text-align: center;
+      }
+      #chart {
+        /*height: 500px;*/
+        font: 13px sans-serif;
+      }
+      .chartHuge {
+        height: 1400px;
+      }
+      .chartRegular {
+        height: 700px;
+      }
+      .node rect {
+        fill-opacity: .9;
+        shape-rendering: crispEdges;
+        stroke-width: 0;
+      }
+      .node text {
+        text-shadow: 0 1px 0 #fff;
+      }
+      .link {
+        fill: none;
+        stroke: #000;
+        stroke-opacity: .2;
+      }
+
+      .linkDataset {
+        color: #888888;
+        stroke-width: 1px;
+        text-decoration: none;
+        font-weight: bold;
+        font-variant: small-caps;
+      }
+    </style>
+  </head>
+  <body>
+  <p>
+    Visualization: <a href="./index.html" class="linkDataset" id="dataset-original">Sort by test score</a> -
+  <a href="./index.html?dataset=final_overall_sort.json" class="linkDataset" id="final_overall_sort">Sort by overall score</a>
+</p>
+    <div id="chart" class="chartRegular"></div>
+
+    <script>
+    // Read a page's GET URL variables and return them as an associative array.
+    function getUrlVars()
+    {
+        var vars = [], hash;
+        var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+        for(var i = 0; i < hashes.length; i++)
+        {
+            hash = hashes[i].split('=');
+            vars.push(hash[0]);
+            vars[hash[0]] = hash[1];
+        }
+        return vars;
+    }
+
+    var a = getUrlVars()
+    // var dataset = "childrenReduced.json"
+    var dataset = "final.json"
+    if (a.dataset !== undefined){
+      d3.selectAll("#" + a.dataset.split(".")[0]).style("color", "#6666EE");
+      dataset = a.dataset
+    } else {
+      d3.selectAll("#dataset-original").style("color", "#6666EE");
+    }
+      var colors = {
+            // 'environment':         '#edbd00',
+            // 'social':              '#367d85',
+            // 'animals':             '#97ba4c',
+            // 'health':              '#f5662b',
+            // 'research_ingredient': '#3f3e47',
+            'red':                 '#E84B30',
+            'yellow':              '#FFD432',
+            'green':               '#49E83E',
+            'fallback':            '#9f9fa3',
+          };
+      // d3.json("childrenReduced.json", function(error, json) {
+      d3.json(dataset, function(error, json) {
+        if (json.subjects > 50) {
+          d3.selectAll("#chart").classed("chartRegular", false).classed("chartHuge", true);
+        }
+        var chart = d3.select("#chart").append("svg").chart("Sankey.Path");
+        chart
+          .name(label)
+          .colorNodes(function(name, node) {
+            return color(node, 1) || colors.fallback;
+          })
+          .colorLinks(function(link) {
+            return color(link.target, 1) || color(link.source, 4) || colors.fallback;
+          })
+          .nodeWidth(15)
+          .nodePadding(10)
+          .spread(true)
+          .iterations(0)
+          .draw(json);
+        function label(node) {
+          return node.name.replace(/\s*\(.*?\)$/, '');
+        }
+        function color(node, depth) {
+          var id = node.id.replace(/(_score)?(_\d+)?$/, '');
+          if (colors[id]) {
+            return colors[id];
+          } else if (depth > 0 && node.targetLinks && node.targetLinks.length == 1) {
+            return color(node.targetLinks[0].source, depth-1);
+          } else {
+            return null;
+          }
+        }
+      });
+    </script>
+  </body>
+</html>
