@@ -53,9 +53,11 @@
   </head>
   <body>
   <p>
-    Choose visualization: <a href="./index.html" class="linkDataset" id="dataset-original">Sort by test score</a> -
-  <a href="./index.html?dataset=final_overall_sort.json" class="linkDataset" id="final_overall_sort">Sort by overall score</a> -
-  <a href="./index.html?dataset=final_all_color.json" class="linkDataset" id="final_all_color">Sort by test score with colors</a>
+    Choose visualization:
+    <!-- <a href="./index.html" class="linkDataset" id="dataset-original">Sort by test score</a> - -->
+  <!-- <a href="./index.html?dataset=final_overall_sort.json" class="linkDataset" id="final_overall_sort">Sort by overall score</a> - -->
+  <a href="./index.html?dataset=final_all_color.json" class="linkDataset" id="final_all_color">Sort by test score with colors</a> -
+  <a href="./index.html?dataset=final_v2.json" class="linkDataset" id="final_v2">Version 2.0</a>
 </p>
     <div id="chart" class="chartRegular"></div>
 
@@ -76,7 +78,7 @@
 
     var a = getUrlVars()
     // var dataset = "childrenReduced.json"
-    var dataset = "final.json"
+    var dataset = "final_v2.json"
     if (a.dataset !== undefined){
       d3.selectAll("#" + a.dataset.split(".")[0]).style("color", "#6666EE");
       dataset = a.dataset
@@ -106,7 +108,8 @@
             return color(node, 1) || colors.fallback;
           })
           .colorLinks(function(link) {
-            return color(link.target, 1) || color(link.source, 4) || colors.fallback;
+            // return color(link.target, 1) || color(link.source, 4) || colors.fallback;
+            return color(link.source, 4) || color(link.target, 1) || colors.fallback;
           })
           .nodeWidth(15)
           .nodePadding(10)
