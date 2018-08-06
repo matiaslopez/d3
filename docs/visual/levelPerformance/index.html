@@ -186,7 +186,7 @@ function  buildChart() {
 
   // Precompute the orders_Y.
   orders_Y = {
-    name: d3.range(users_length).sort(function(a, b) { return d3.ascending(a, b); }),
+    name: d3.range(users_length).sort(function(a, b) { return d3.ascending(users[a]["key"], users[b]["key"]); }),
     play: d3.range(users_length).sort(function(a, b) { return -order_funct(users[a], users[b], "play", "key"); }),
     score: d3.range(users_length).sort(function(a, b) { return -order_funct(users[a], users[b], "score", "key"); })
   };
