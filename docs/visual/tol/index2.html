@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <title>School readiness study</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+  <style>
+    circle {
+      fill: #333;
+      /*opacity: 0.3;*/
+      stroke: white;
+    }
+    </style>
+  <link rel="stylesheet" href="style.css">
+  <!-- <script src="FileSaver.min.js"></script> -->
+  </head>
+
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <a class="navbar-brand" href="#">ToL visualizer</a>
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <form class="form-inline">
+        <label class="mr-sm-2" for="custom-control-description">Source</label>
+          <select class="custom-select mb-2 mr-sm-2 mb-sm-0" id="sourceID"></select>
+        <label class="mr-sm-2" for="custom-control-description">Target</label>
+          <select class="custom-select mb-2 mr-sm-2 mb-sm-0" id="targetID"></select>
+
+    </form>
+  </div>
+    <form class="form-inline my-2 my-lg-0">
+      <input type="button" class="btn my-2 my-sm-0" id="saveButton" value="Download image">
+    </form>
+</nav>
+  <div class="container">
+    <div class="row spacer">&nbsp;</div>
+    <div class="row spacer">
+      <div class="col align-self-center text-center svg-area-to-save">
+      <div id="sliders"></div>
+
+        <div class="border" id="vis" width="1000" height="750"></div>
+
+        <!-- <svg class="border" width="1000" height="750"><g></g></svg> -->
+      </div>
+    </div>
+</div>
+
+<script src="https://d3js.org/d3.v4.js"></script>
+  <script>
+
+      var data = ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35'];
+
+    // var options = select
+    //   .selectAll('option')
+    //   .data([{key: "", value: "All (" +  len_students + " students)"}].concat(school_ids)).enter()
+    //     .append('option')
+    //     .attr("value", function (d) { return d.key; })
+    //     .text(function (d) { return d.value; });
+
+      var select = d3.select('#sourceID');
+        var options = select
+          .selectAll('option')
+            .data(data).enter()
+            .append('option')
+                .text(function (d) { return d; });
+      var select = d3.select('#targetID');
+        var options = select
+          .selectAll('option')
+            .data(data).enter()
+            .append('option')
+                .text(function (d) { return d; });
+
+
+
+        d3.select("#sourceID").on("change", function() {
+          selecting_targets();
+        });
+        d3.select("#targetID").on("change", function() {
+          selecting_targets();
+        });
+
+        function selecting_targets(){
+            var source_ID = d3.select("#sourceID").node().value;
+            var target_ID = d3.select("#targetID").node().value;
+
+            d3.selectAll("g").selectAll("*").style("fill-opacity", 0.2)
+            d3.selectAll("g#g" + target_ID).selectAll("*").style("fill-opacity", 1)
+            d3.selectAll("g#g" + source_ID).selectAll("*").style("fill-opacity", 1)
+        };
+
+        function onchange() {
+            selectValue = d3.select('select').property('value')
+            d3.select('body')
+                .append('p')
+                .text(selectValue + ' is the last selected option.')
+        };
+
+      // Extract the width and height that was computed by CSS.
+      var chartDiv = document.getElementById("vis");
+      var width = chartDiv.clientWidth;
+      var height = chartDiv.clientHeight;
+
+	// d3.select("div#vis")
+	//    .append("div")
+	//    .classed("svg-container", true) //container class to make it responsive
+	//    .append("svg")
+	//    //responsive SVG needs these 2 attributes and no width and height attr
+	//    .attr("preserveAspectRatio", "xMinYMin meet")
+	//    .attr("viewBox", "0 0 600 400")
+	//    //class to make it responsive
+	//    .classed("svg-content-responsive", true)
+
+      // load the external svg from a file
+      d3.xml("tol-space.svg").mimeType("image/svg+xml").get(function(error, xml) {
+      var importedNode = document.importNode(xml.documentElement, true);
+      importedNode.attributes.preserveAspectRatio = "xMinYMin meet"
+      importedNode.attributes.viewBox = "0 0 600 400"
+      // xml.documentElement.classed("svg-content-responsive", true);
+      d3.select("div#vis")
+        .each(function() {
+          a = this.appendChild(importedNode);
+        })
+        // inside of our d3.xml callback, call another function
+        // that styles individual paths inside of our imported svg
+        styleImportedSVG()
+
+      d3.select('svg').classed("svg-content-responsive", true);
+      // d3.selectAll("circle").style("stroke-opacity", 0.2)
+      // d3.selectAll("g").selectAll("*").style("fill-opacity", 0.2)
+      // d3.selectAll("g#g09").selectAll("*").style("fill-opacity", 1)
+
+      });
+
+
+
+
+      function styleImportedSVG () {
+        d3.select('svg')
+          .on('mouseover', function() {
+            console.log('mouseover');
+            // console.log('this', this);
+            d3.select('#g09')
+              .style({
+                'fill-opacity':   0.1,
+                'stroke-opacity': 0.3
+              })
+          })
+          .on('mouseout', function() {
+            console.log('mouseout');
+            d3.select('#g09')
+              .style({
+                'fill-opacity':   1,
+                'stroke-opacity': 1
+              })
+          })
+      }
+
+
+</script>
