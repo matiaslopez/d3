@@ -41,7 +41,7 @@
       <div class="col align-self-center text-center svg-area-to-save">
       <div id="sliders"></div>
 
-        <div class="border" id="vis" width="1000" height="750"></div>
+        <div class="border" id="vis" width="800" height="750"></div>
 
         <!-- <svg class="border" width="1000" height="750"><g></g></svg> -->
       </div>
@@ -87,8 +87,26 @@
             var target_ID = d3.select("#targetID").node().value;
 
             d3.selectAll("g").selectAll("*").style("fill-opacity", 0.2)
+            d3.selectAll("g > circle")
+                .style("stroke", "black")
+                .style("stroke-opacity", "0.3");
+
             d3.selectAll("g#g" + target_ID).selectAll("*").style("fill-opacity", 1)
+            d3.selectAll("g#g" + target_ID + " > circle")
+                    .style("stroke", "green")
+                    .style("stroke-opacity", "1");
             d3.selectAll("g#g" + source_ID).selectAll("*").style("fill-opacity", 1)
+            d3.selectAll("g#g" + source_ID + " > circle")
+                    .style("stroke", "red")
+                    .style("stroke-opacity", "1");
+
+            d3.selectAll("*[id^=p-]")
+                .style("stroke", "#969696")
+                .style("stroke-width", 1);
+            d3.selectAll("path#p-" + source_ID + "-" + target_ID)
+            // d3.selectAll("#/p-" + source_ID + "-" + target_ID + "|p-00-15/")
+                .style("stroke", "blue")
+                .style("stroke-width", 5);
         };
 
         function onchange() {
@@ -115,23 +133,15 @@
 
       // load the external svg from a file
       d3.xml("tol-space.svg").mimeType("image/svg+xml").get(function(error, xml) {
-      var importedNode = document.importNode(xml.documentElement, true);
-      importedNode.attributes.preserveAspectRatio = "xMinYMin meet"
-      importedNode.attributes.viewBox = "0 0 600 400"
-      // xml.documentElement.classed("svg-content-responsive", true);
-      d3.select("div#vis")
-        .each(function() {
-          a = this.appendChild(importedNode);
-        })
-        // inside of our d3.xml callback, call another function
-        // that styles individual paths inside of our imported svg
-        styleImportedSVG()
-
-      d3.select('svg').classed("svg-content-responsive", true);
-      // d3.selectAll("circle").style("stroke-opacity", 0.2)
-      // d3.selectAll("g").selectAll("*").style("fill-opacity", 0.2)
-      // d3.selectAll("g#g09").selectAll("*").style("fill-opacity", 1)
-
+          var importedNode = document.importNode(xml.documentElement, true);
+          importedNode.attributes.preserveAspectRatio = "xMinYMin meet"
+          importedNode.attributes.viewBox = "0 0 600 400"
+          // xml.documentElement.classed("svg-content-responsive", true);
+          d3.select("div#vis")
+            .each(function() {
+              a = this.appendChild(importedNode);
+              })
+          d3.select('svg').classed("svg-content-responsive", true);
       });
 
 
