@@ -28,7 +28,7 @@
           <select class="custom-select mb-2 mr-sm-2 mb-sm-0" id="sourceID"></select>
         <label class="mr-sm-2" for="custom-control-description">Target</label>
           <select class="custom-select mb-2 mr-sm-2 mb-sm-0" id="targetID"></select>
-        <label id="lbl-description" class="mr-sm-2" for="custom-control-description">Select source node: Click, and target: Control+Click</label>
+        <label id="lbl-description" class="mr-sm-2" for="custom-control-description"></label>
     </form>
   </div>
     <form class="form-inline my-4 my-lg-0">
@@ -125,7 +125,7 @@
         }
 
         function reset(){
-          d3.selectAll("#lbl-description").html("")
+          d3.selectAll("#lbl-description").html("Select source node: Click, and target: Control+Click (Cmd+Click for Mac users)")
           d3.selectAll("*[id^=p-]")
                      .style("stroke", "#969696")
                      .style("stroke-width", 1);
@@ -229,18 +229,16 @@
                 (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");})
             .on("mouseout", function(){return tooltip.style("visibility", "hidden");})
             .on("click", function () { 
-              if (d3.event.ctrlKey || d3.event.metaKey) {
-                d3.select("#targetID").node().value = this.id.substr(1,2);
-              } else {
-                d3.select("#sourceID").node().value = this.id.substr(1,2);
-              }
-              // console.log(this.id.substr(1,2))
-              selecting_targets();
-            }
-
-
-
+                  if (d3.event.ctrlKey || d3.event.metaKey) {
+                    d3.select("#targetID").node().value = this.id.substr(1,2);
+                  } else {
+                    d3.select("#sourceID").node().value = this.id.substr(1,2);
+                  }
+                  // console.log(this.id.substr(1,2))
+                  selecting_targets();
+                }
               );
+          reset()
       });
 
 
