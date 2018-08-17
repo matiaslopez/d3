@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <!-- Required meta tags -->
-    <title>School readiness study</title>
+    <title>ToL visualizer</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
@@ -28,11 +28,12 @@
           <select class="custom-select mb-2 mr-sm-2 mb-sm-0" id="sourceID"></select>
         <label class="mr-sm-2" for="custom-control-description">Target</label>
           <select class="custom-select mb-2 mr-sm-2 mb-sm-0" id="targetID"></select>
-
+        <label id="lbl-description" class="mr-sm-2" for="custom-control-description"></label>
     </form>
   </div>
-    <form class="form-inline my-2 my-lg-0">
-      <input type="button" class="btn my-2 my-sm-0" id="saveButton" value="Download image">
+    <form class="form-inline my-4 my-lg-0">
+      <input type="button" class="btn my-2 my-sm-0" id="resetButton" value="Reset">
+      <!-- <input type="button" class="btn my-2 my-sm-0" id="saveButton" value="Download image"> -->
     </form>
 </nav>
   <div class="container">
@@ -59,6 +60,31 @@
     //     .append('option')
     //     .attr("value", function (d) { return d.key; })
     //     .text(function (d) { return d.value; });
+    var color_palette = ["#56B4E9", "#E69F00",  "#009E73",  "#0072B2", "#CC79A7", "#F0E442","#D55E00"]
+
+  var tooltip = d3.select("body")
+    .append("div")
+    .attr("class", "ownTooltip")
+    .style("position", "absolute")
+    .style("z-index", "10")
+    .style("visibility", "hidden")
+    .text("a simple tooltip");
+
+  tooltip.style("visibility", "hidden");
+
+
+    var board_info = {};
+    d3.csv("board_classification.csv", function(data) {
+      data.forEach(function(d) {
+        board_info[d.board] = d["config"];
+      });
+    });
+    var paths_info = {};
+    d3.csv("all_paths.csv", function(data) {
+      data.forEach(function(d) {
+        paths_info[[d.Source, d.Target]] = d["path"];
+      });
+    });
 
       var select = d3.select('#sourceID');
         var options = select
@@ -82,31 +108,79 @@
           selecting_targets();
         });
 
+        function paint_segment(src, dst, col_idx){
+            src = src < 10?"0" + src : src;
+            dst = dst < 10?"0" + dst : dst;
+            path_id = "p-" + src + "-" + dst;
+            if (parseInt(src)>parseInt(dst)){
+              path_id = "p-" + dst + "-" + src;
+            }
+            d3.selectAll("g#g" + src).selectAll("*").style("fill-opacity", 1)
+
+            // console.log("painting " + path_id)
+            d3.selectAll("path#" + path_id)
+            // d3.selectAll("#/p-" + src + "-" + dst + "|p-00-15/")
+                .style("stroke", color_palette[col_idx])
+                .style("stroke-width", 5);
+        }
+
+        function reset(){
+          d3.selectAll("#lbl-description").html("")
+          d3.selectAll("*[id^=p-]")
+                     .style("stroke", "#969696")
+                     .style("stroke-width", 1);
+          d3.selectAll(".selectednode")
+                  .style("stroke-width", 5)
+                  .classed("selectednode", false);
+          d3.selectAll("g").selectAll("*").style("fill-opacity", 1)
+          d3.selectAll("g > circle")
+                    .style("stroke", "black")
+                    // .style("stroke-width", 8)
+                    .style("stroke-opacity", "1");
+        }
+
         function selecting_targets(){
             var source_ID = d3.select("#sourceID").node().value;
             var target_ID = d3.select("#targetID").node().value;
 
-            d3.selectAll("g").selectAll("*").style("fill-opacity", 0.2)
-            d3.selectAll("g > circle")
-                .style("stroke", "black")
-                .style("stroke-opacity", "0.3");
+            reset();
+            if (source_ID!= target_ID){
+                // d3.selectAll("*[id^=p-]")
+                //      .style("stroke", "#969696")
+                //      .style("stroke-width", 1);
 
-            d3.selectAll("g#g" + target_ID).selectAll("*").style("fill-opacity", 1)
-            d3.selectAll("g#g" + target_ID + " > circle")
-                    .style("stroke", "green")
-                    .style("stroke-opacity", "1");
-            d3.selectAll("g#g" + source_ID).selectAll("*").style("fill-opacity", 1)
-            d3.selectAll("g#g" + source_ID + " > circle")
-                    .style("stroke", "red")
-                    .style("stroke-opacity", "1");
+                d3.selectAll("g").selectAll("*").style("fill-opacity", 0.2)
+                d3.selectAll("g > circle")
+                    // .style("stroke", "black")
+                    .style("stroke-opacity", "0.3");
 
-            d3.selectAll("*[id^=p-]")
-                .style("stroke", "#969696")
-                .style("stroke-width", 1);
-            d3.selectAll("path#p-" + source_ID + "-" + target_ID)
-            // d3.selectAll("#/p-" + source_ID + "-" + target_ID + "|p-00-15/")
-                .style("stroke", "blue")
-                .style("stroke-width", 5);
+                d3.selectAll("g#g" + target_ID).selectAll("*").style("fill-opacity", 1)
+                d3.selectAll("g#g" + target_ID + " > circle")
+                        .attr("class", "selectednode")
+                        .style("stroke", "green")
+                        .style("stroke-width", 10)
+                        .style("stroke-opacity", "1");
+                d3.selectAll("g#g" + source_ID).selectAll("*").style("fill-opacity", 1)
+                d3.selectAll("g#g" + source_ID + " > circle")
+                        .attr("class", "selectednode")
+                        .style("stroke", "blue")
+                        .style("stroke-width", 10)
+                        .style("stroke-opacity", "1");
+
+                
+                var paths = JSON.parse(paths_info[source_ID+","+target_ID])
+                d3.selectAll("#lbl-description").html("Minimum movements: " + (paths[0].length-1) + " - Number of paths: " + paths.length);
+                // paint_segment(source_ID, target_ID)
+                // console.log(paths_info[source_ID+","+target_ID]);
+                paths.forEach(function(p, i) {
+                  console.log(i, p)
+                  d3.pairs(p, function(a, b) {
+                    // console.log(a,b);
+                    paint_segment(a,b, i);
+                  })
+                })
+
+            } 
         };
 
         function onchange() {
@@ -142,8 +216,31 @@
               a = this.appendChild(importedNode);
               })
           d3.select('svg').classed("svg-content-responsive", true);
+
+
+          d3.selectAll("*[id^=g]")
+          // d3.selectAll("g > circle")
+            .on("mouseover", function(d){
+                    return tooltip.style("visibility", "visible").html(
+                      "Board number: <B>" + this.id.substr(1,2) + "</B><br>" + //+ d.data.value.count + " (" + (d.data.value.count*100/n_students).toFixed(2) +"%)" +
+                      "Configuration: <B>" + board_info[this.id] + "</B>" +
+                      "");})
+            .on("mousemove", function(){return tooltip.style("top",
+                (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");})
+            .on("mouseout", function(){return tooltip.style("visibility", "hidden");});
       });
 
+
+
+
+d3.select("#resetButton")
+    .on('click', function(q){
+      console.log("Reseting...");
+      d3.select("#sourceID").node().value = "00";
+      d3.select("#targetID").node().value = "00";
+
+      reset();
+    });
 
 
 
