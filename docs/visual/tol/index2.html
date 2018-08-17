@@ -28,7 +28,7 @@
           <select class="custom-select mb-2 mr-sm-2 mb-sm-0" id="sourceID"></select>
         <label class="mr-sm-2" for="custom-control-description">Target</label>
           <select class="custom-select mb-2 mr-sm-2 mb-sm-0" id="targetID"></select>
-        <label id="lbl-description" class="mr-sm-2" for="custom-control-description"></label>
+        <label id="lbl-description" class="mr-sm-2" for="custom-control-description">Select source node: Click, and target: Control+Click</label>
     </form>
   </div>
     <form class="form-inline my-4 my-lg-0">
@@ -173,7 +173,7 @@
                 // paint_segment(source_ID, target_ID)
                 // console.log(paths_info[source_ID+","+target_ID]);
                 paths.forEach(function(p, i) {
-                  console.log(i, p)
+                  // console.log(i, p)
                   d3.pairs(p, function(a, b) {
                     // console.log(a,b);
                     paint_segment(a,b, i);
@@ -227,7 +227,20 @@
                       "");})
             .on("mousemove", function(){return tooltip.style("top",
                 (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");})
-            .on("mouseout", function(){return tooltip.style("visibility", "hidden");});
+            .on("mouseout", function(){return tooltip.style("visibility", "hidden");})
+            .on("click", function () { 
+              if (d3.event.ctrlKey) {
+                d3.select("#targetID").node().value = this.id.substr(1,2);
+              } else {
+                d3.select("#sourceID").node().value = this.id.substr(1,2);
+              }
+              // console.log(this.id.substr(1,2))
+              selecting_targets();
+            }
+
+
+
+              );
       });
 
 
