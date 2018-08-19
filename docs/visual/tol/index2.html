@@ -52,7 +52,7 @@
 <script src="https://d3js.org/d3.v4.js"></script>
   <script>
 
-      var data = ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35'];
+      var data = ['','00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35'];
 
     // var options = select
     //   .selectAll('option')
@@ -167,20 +167,20 @@
                         .style("stroke-width", 10)
                         .style("stroke-opacity", "1");
 
-                
-                var paths = JSON.parse(paths_info[source_ID+","+target_ID])
-                d3.selectAll("#lbl-description").html("Minimum movements: " + (paths[0].length-1) + " - Number of paths: " + paths.length);
-                // paint_segment(source_ID, target_ID)
-                // console.log(paths_info[source_ID+","+target_ID]);
-                paths.forEach(function(p, i) {
-                  // console.log(i, p)
-                  d3.pairs(p, function(a, b) {
-                    // console.log(a,b);
-                    paint_segment(a,b, i);
+                if  (source_ID!="" && target_ID!=""){
+                  var paths = JSON.parse(paths_info[source_ID+","+target_ID])
+                  d3.selectAll("#lbl-description").html("Minimum movements: " + (paths[0].length-1) + " - Number of paths: " + paths.length);
+                  // paint_segment(source_ID, target_ID)
+                  // console.log(paths_info[source_ID+","+target_ID]);
+                  paths.forEach(function(p, i) {
+                    // console.log(i, p)
+                    d3.pairs(p, function(a, b) {
+                      // console.log(a,b);
+                      paint_segment(a,b, i);
+                    })
                   })
-                })
-
-            } 
+                }
+            }
         };
 
         function onchange() {
@@ -228,7 +228,7 @@
             .on("mousemove", function(){return tooltip.style("top",
                 (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");})
             .on("mouseout", function(){return tooltip.style("visibility", "hidden");})
-            .on("click", function () { 
+            .on("click", function () {
                   if (d3.event.ctrlKey || d3.event.metaKey) {
                     d3.select("#targetID").node().value = this.id.substr(1,2);
                   } else {
@@ -247,8 +247,8 @@
 d3.select("#resetButton")
     .on('click', function(q){
       console.log("Reseting...");
-      d3.select("#sourceID").node().value = "00";
-      d3.select("#targetID").node().value = "00";
+      d3.select("#sourceID").node().value = "";
+      d3.select("#targetID").node().value = "";
 
       reset();
     });
