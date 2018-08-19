@@ -98,7 +98,10 @@
     var paths_info = {};
     d3.csv("all_paths.csv", function(data) {
       data.forEach(function(d) {
-        paths_info[[d.Source, d.Target]] = d["path"];
+        paths_info[[d.Source, d.Target]] = {};
+        paths_info[[d.Source, d.Target]].path = d["path"];
+        paths_info[[d.Source, d.Target]].search_depth = d["search_depth"];
+        paths_info[[d.Source, d.Target]].chunks = d["chunks"];
       });
     });
 
@@ -187,11 +190,15 @@
                         .style("stroke-opacity", "1");
 
                 if  (source_ID!="" && target_ID!=""){
-                  var paths = JSON.parse(paths_info[source_ID+","+target_ID])
-                  d3.selectAll("#lbl-description").html("Minimum movements: " + (paths[0].length-1) + " - Number of paths: " + paths.length);
+                  var info = paths_info[source_ID+","+target_ID]
+                  var p_info = JSON.parse(info.path)
+                  d3.selectAll("#lbl-description").html("Minimum movements: " + (p_info[0].length-1) +
+                                                        " - Number of paths: " + p_info.length +
+                                                        (info.search_depth != "NA" ?" - Search depth: " + info.search_depth : "")+
+                                                        (info.chunks != "NA" ?" - Chunks: " + info.chunks : ""));
                   // paint_segment(source_ID, target_ID)
                   // console.log(paths_info[source_ID+","+target_ID]);
-                  paths.forEach(function(p, i) {
+                  p_info.forEach(function(p, i) {
                     // console.log(i, p)
                     d3.pairs(p, function(a, b) {
                       // console.log(a,b);
