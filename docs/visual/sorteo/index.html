@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <title>Sorteo</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+  <style>
+    circle {
+      fill: #333;
+      /*opacity: 0.3;*/
+      stroke: white;
+    }
+    </style>
+  <link rel="stylesheet" href="style.css">
+  <!-- <script src="FileSaver.min.js"></script> -->
+  </head>
+
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <a class="navbar-brand" href="#">Jugando por un premio</a>
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <!-- <form class="form-inline">
+        <label class="mr-sm-2" for="custom-control-description"></label>
+          <select class="custom-select mb-2 mr-sm-2 mb-sm-0" id="sourceID"></select>
+        <label class="mr-sm-2" for="custom-control-description"></label>
+          <select class="custom-select mb-2 mr-sm-2 mb-sm-0" id="targetID"></select>
+        <label id="lbl-description" class="mr-sm-2" for="custom-control-description"></label>
+    </form> -->
+  </div>
+    <form class="form-inline my-4 my-lg-0">
+      <input type="button" id="resetButton" value="Otra vez"  class="btn my-2 my-sm-0" onClick="window.location.reload();">
+
+      <!-- <input type="button" class="btn my-2 my-sm-0" id="saveButton" value="Download image"> -->
+    </form>
+</nav>
+  <div class="container">
+    <div class="row spacer">&nbsp;</div>
+    <div class="row spacer">
+      <div class="col align-self-center text-center svg-area-to-save">
+      <div id="sliders"></div>
+
+        <div class="border" id="vis" width="800" height="750"></div>
+
+        <!-- <svg class="border" width="1000" height="750"><g></g></svg> -->
+      </div>
+    </div>
+</div>
+
+<script src="https://d3js.org/d3.v4.js"></script>
+  <script>
+
+    // var options = select
+    //   .selectAll('option')
+    //   .data([{key: "", value: "All (" +  len_students + " students)"}].concat(school_ids)).enter()
+    //     .append('option')
+    //     .attr("value", function (d) { return d.key; })
+    //     .text(function (d) { return d.value; });
+    var color_palette = ["#56B4E9", "#E69F00",  "#009E73",  "#0072B2", "#CC79A7", "#F0E442","#D55E00"]
+
+  var tooltip = d3.select("body")
+    .append("div")
+    .attr("class", "ownTooltip")
+    .style("position", "absolute")
+    .style("z-index", "10")
+    .style("visibility", "hidden")
+    .text("Apretá para elegir esta opción");
+
+  tooltip.style("visibility", "hidden");
+
+
+
+      // Extract the width and height that was computed by CSS.
+      var chartDiv = document.getElementById("vis");
+      var width = chartDiv.clientWidth;
+      var height = chartDiv.clientHeight;
+
+      var str_premios = ["un gatito|para canjearlo|por una pipeta",
+                         "una vela|para ver porque|te cortaron la luz",
+                         "una billete de 2 en|100 años valdrá|como antiguedad"]
+
+      // load the external svg from a file
+      d3.xml("scenario.svg").mimeType("image/svg+xml").get(function(error, xml) {
+          var importedNode = document.importNode(xml.documentElement, true);
+          importedNode.attributes.preserveAspectRatio = "xMinYMin meet"
+          importedNode.attributes.viewBox = "0 0 600 400"
+          // xml.documentElement.classed("svg-content-responsive", true);
+          d3.select("div#vis")
+            .each(function() {
+              a = this.appendChild(importedNode);
+              })
+          d3.select('svg').classed("svg-content-responsive", true);
+
+          d3.selectAll("#premio").style("visibility", "hidden");
+
+
+          d3.selectAll("*[id^=g]")
+          // d3.selectAll("g > circle")
+            .on("mouseover", function(d){
+                  d3.select(this).select("rect")
+                    .classed("unselectednode", false)
+                    .classed("selectednode", true)
+                    .transition()
+                    .style("opacity", 1)
+                    .style("fill", "#52B354");
+                    return tooltip.style("visibility", "visible").html("¿Te animás con el " +
+                      d3.select(this).select("text").text() + "?");})
+            .on("mousemove", function(){return tooltip.style("top",
+                (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");})
+            .on("mouseout", function(){d3.selectAll(".selectednode")
+                  .classed("selectednode", false)
+                  .classed("unselectednode", true)
+                  .style("opacity", 0.5)
+                  .transition()
+                  .style("fill", "#e6e6e6");
+              return tooltip.style("visibility", "hidden");})
+            .on("click", function () {
+                var p_text = str_premios[Math.floor(Math.random()*str_premios.length)].split("|")
+                d3.selectAll("*[id^=premio]")
+                  .style("visibility", "visible");
+                d3.select("#linea1").text(p_text[0])
+                d3.select("#linea2").text(p_text[1])
+                d3.select("#linea3").text(p_text[2]);
+                d3.selectAll(".unselectednode")
+                    .transition()
+                    .style("fill", "#e6e6e6");
+                }
+              );
+            d3.selectAll("*[id^=g] > rect")
+                        .attr("class", "unselectednode").style("opacity", 0.5);
+            blink();
+      });
+
+
+
+function blink() {
+  d3.selectAll("[id^=g]").selectAll(".unselectednode").transition()
+    .duration(500)
+    .style("fill", "#FFA65C")
+    .transition()
+    .duration(500)
+    .style("fill", "#5F49B3") //rgb(10,30,190)")
+    .on("end", blink)
+    //    ^------^---- calling blink again when the transition ends
+}
+
+
+
+      function styleImportedSVG () {
+        d3.select('svg')
+          .on('mouseover', function() {
+            console.log('mouseover');
+            // console.log('this', this);
+            d3.select('#g09')
+              .style({
+                'fill-opacity':   0.1,
+                'stroke-opacity': 0.3
+              })
+          })
+          .on('mouseout', function() {
+            console.log('mouseout');
+            d3.select('#g09')
+              .style({
+                'fill-opacity':   1,
+                'stroke-opacity': 1
+              })
+          })
+      }
+
+
+</script>
