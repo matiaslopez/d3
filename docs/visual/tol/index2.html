@@ -32,7 +32,10 @@
     </form>
   </div>
     <form class="form-inline my-4 my-lg-0">
-      <input type="button" class="btn my-2 my-sm-0" id="resetButton" value="Reset">
+      <input type="button" class="btn my-1 my-sm-0" id="translationButton" value="Translate">
+    </form>
+    <form class="form-inline my-4 my-lg-0">
+      <input type="button" class="btn my-1 my-sm-0" id="resetButton" value="Reset">
       <!-- <input type="button" class="btn my-2 my-sm-0" id="saveButton" value="Download image"> -->
     </form>
 </nav>
@@ -159,7 +162,7 @@ function do_translation(x) {
           selecting_targets();
         });
 
-        function paint_segment(src, dst, col_idx){
+        function paint_segment(src, dst, col_idx, idx){
             src = src < 10?"0" + src : src;
             dst = dst < 10?"0" + dst : dst;
             path_id = "p-" + src + "-" + dst;
@@ -173,6 +176,28 @@ function do_translation(x) {
             // d3.selectAll("#/p-" + src + "-" + dst + "|p-00-15/")
                 .style("stroke", color_palette[col_idx])
                 .style("stroke-width", 5);
+
+            var labelPositions = []
+            d3.selectAll("#" + path_id)
+            .each(function(d, i){
+              var p = this.getPointAtLength(.5 * this.getTotalLength());
+
+              labelPositions[i] = p;
+
+            });
+
+            var label = d3.select("svg g")
+
+            label
+              .append("text")
+              .classed("linklabel", true)
+              .style("fill", "black")
+              .style("font-size", "20px")
+              .text(idx)
+                .attr("x", labelPositions[0].x)
+                .attr("y", labelPositions[0].y)
+                .attr("dy", ".35em")
+                .attr("text-anchor", "middle");
         }
 
         function reset(){
@@ -188,6 +213,7 @@ function do_translation(x) {
                     .style("stroke", "black")
                     // .style("stroke-width", 8)
                     .style("stroke-opacity", "1");
+          d3.selectAll(".linklabel").remove();
         }
 
         function selecting_targets(){
@@ -225,13 +251,16 @@ function do_translation(x) {
                                                         " - Number of paths: " + p_info.length +
                                                         (info.search_depth != "NA" ?" - Search depth: " + info.search_depth : "")+
                                                         (info.chunks != "NA" ?" - Chunks: " + info.chunks : ""));
+                  // + " - Trial: " + source_ID+"=>"+target_ID
                   // paint_segment(source_ID, target_ID)
                   // console.log(paths_info[source_ID+","+target_ID]);
                   p_info.forEach(function(p, i) {
                     // console.log(i, p)
+                    var idx = 1;
                     d3.pairs(p, function(a, b) {
                       // console.log(a,b);
-                      paint_segment(a,b, i);
+                      paint_segment(a,b, i, idx);
+                      idx += 1;
                     })
                   })
                 }
@@ -272,7 +301,6 @@ function do_translation(x) {
               })
           d3.select('svg').classed("svg-content-responsive", true);
 
-
           d3.selectAll("*[id^=g]")
           // d3.selectAll("g > circle")
             .on("mouseover", function(d){
@@ -308,6 +336,21 @@ d3.select("#resetButton")
       d3.select("#targetID").node().value = "";
 
       reset();
+    });
+
+d3.select("#translationButton")
+    .on('click', function(q){
+      if (use_translation) {
+        console.log("Change to not translate...");
+        if (window.location.href.indexOf('?')>0) {
+          location.href = window.location.href.slice(0, window.location.href.indexOf('?')) + "?translate=false";
+        } else {
+          location.href = window.location.href + "?translate=false";
+        }
+      } else {
+        console.log("Change to translate...");
+        location.href  = window.location.href.slice(0, window.location.href.indexOf('?'));
+      }
     });
 
 
