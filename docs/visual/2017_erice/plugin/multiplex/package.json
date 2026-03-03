@@ -11,9 +11,9 @@
   },
   "dependencies": {
     "express": "~4.13.3",
-    "grunt": ">=1.5.3",
+    "grunt-cli": "~1.5.2",
     "mustache": "~2.2.1",
-    "socket.io": "~2.4.0"
+    "socket.io": ">=2.5.1"
   },
   "license": "MIT"
 }
