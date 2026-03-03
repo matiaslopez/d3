@@ -13,7 +13,7 @@
     "express": ">=4.20",
     "grunt-cli": "~1.5.2",
     "mustache": "~2.2.1",
-    "socket.io": ">=2.5.1"
+    "socket.io": ">=4.6.2"
   },
   "license": "MIT"
 }
