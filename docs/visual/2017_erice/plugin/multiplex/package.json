@@ -10,7 +10,7 @@
     "node": "~4.1.1"
   },
   "dependencies": {
-    "express": ">=4.19.2",
+    "express": ">=4.20",
     "grunt-cli": "~1.5.2",
     "mustache": "~2.2.1",
     "socket.io": ">=2.5.1"
